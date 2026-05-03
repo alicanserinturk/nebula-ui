@@ -191,6 +191,8 @@ export default {
   },
   methods: {
     loadMessages(e,) {
+      // chat devre dışı — backend chats route'ları kaldırıldı
+      return;
       if (this.$refs.messagebody.scrollTop === 0) {
         let currentScrollHeight = this.$refs.messagebody.scrollHeight;
         this.loadingMessages = true;
@@ -253,6 +255,8 @@ export default {
       console.log(emoji)
     },
     getUsers() {
+      // chat devre dışı — backend chats route'ları kaldırıldı
+      return;
       this.loadingUsers = true;
       this.$api.get('chats/users', {}, (response) => {
         this.users = response.data;
@@ -261,6 +265,8 @@ export default {
       });
     },
     getMessages(user, first = true) {
+      // chat devre dışı — backend chats route'ları kaldırıldı
+      return;
       this.loadingMessages = true;
       this.messages = [];
       this.$api.get('chats/' + user.id, {page: this.messagesActivePage}, (response) => {
@@ -290,6 +296,8 @@ export default {
       }
     },
     sendMessages() {
+      // chat devre dışı — backend chats route'ları kaldırıldı
+      return;
       this.$api.post('chats', {
         user_id: this.activeUser.id,
         message: this.message,

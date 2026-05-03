@@ -162,6 +162,8 @@ export default {
 		]),
 		...mapMutations(["setPermissionMicrophone", "setPermissionNotification", "setUsers"]),
 		getUsers() {
+			// chat devre dışı — backend chats route'ları kaldırıldı
+			return;
 			this.$api.get("chats/users", {}, (response) => {
 				this.setUsers(response.data);
 			});
