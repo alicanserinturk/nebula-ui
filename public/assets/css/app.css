@@ -1,0 +1,522 @@
+body{
+    color:#313131;
+}
+h1,h2,h3,h4,h5,h6{
+    font-weight: 400;
+}
+.text-label{
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 400;
+}
+.el-table .cell{
+    overflow:hidden !important;
+    white-space:nowrap !important;
+    text-overflow: ellipsis !important;
+}
+.text-color{
+    color:#313131;
+}
+.text-muted{
+    color:#818181 !important;
+}
+.bg-dark .el-pagination.is-background .el-pager li:not(.disabled).active{
+    color:#FFF;
+}
+.bg-dark .el-button{
+    color:#FFF;
+}
+.bg-dark .el-button--primary.is-disabled,.bg-dark .el-button--primary.is-disabled:active,.bg-dark .el-button--primary.is-disabled:focus,.bg-dark .el-button--primary.is-disabled:hover{
+    color:#FFF;
+}
+.bg-dark .app-item-action-disabled{
+    background: #27292CCC;
+}
+.bg-dark .app-table-pagination .el-input__inner {
+    background-color: #323437;
+    color: #C0C4CC;
+}
+.bg-dark .app-header-search .el-input__inner{
+    background-color: #1d1f21;
+    border: 1px solid #252525;
+}
+.bg-dark .el-dialog__body{
+    color:#D2D2D2;
+}
+.bg-dark .editor {
+    border: 1px solid #4c4c4c;
+}
+.bg-dark .el-collapse-item__header{
+    border-top:0;
+    border-bottom:1px solid rgba(135,150,165,.1);
+}
+.bg-dark .btn-light:not(:disabled):not(.disabled).active, .bg-dark .btn-light:not(:disabled):not(.disabled):active, .bg-dark .show > .btn-light.dropdown-toggle {
+    border: 1px solid #35383c !important;
+    background-color: #1F2124 !important;
+    color: #DDD !important;
+}
+
+.bg-dark .bg-light-lt:hover {
+    background-color: #27292C !important;
+}
+
+.bg-dark .bg-light-lt {
+    color: #d1d7e1 !important;
+    background-color: #1f2124 !important;
+}
+
+.bg-dark .bg-light {
+    background: #1F2124 !important;
+    color: #DDD !important;
+}
+
+.bg-dark .btn-light {
+    border: 1px solid #35383c !important;
+    background-color: #1F2124 !important;
+    color: #DDD !important;
+}
+
+.bg-dark .badge-light {
+    background: #1F2124 !important;
+    color: #DDD !important;
+}
+
+.bg-dark .el-checkbox__input.is-disabled .el-checkbox__inner {
+    background: #1F2124 !important;
+    border: 1px solid #35383c;
+}
+
+.bg-dark .app-sip-client.drag {
+    background: #171A1C !important;
+}
+
+.bg-dark .el-upload-dragger {
+    background: #1F2124 !important;
+    border: 1px solid #35383c;
+}
+
+.app-progress-bar {
+    display: flex;
+}
+
+.app-progress {
+    display: inline-block;
+    padding: 1rem;
+    overflow: hidden;
+}
+
+.app-progress.green {
+    /*background-image: linear-gradient(to right, #4CAF50, #4CAF50);*/
+}
+
+.app-progress.blue {
+    /*background-image: linear-gradient(to right, #4CAF50, #2196F3);*/
+}
+
+.app-progress.amber {
+    /*background-image: linear-gradient(to right, #2196F3, #FFC107);*/
+}
+
+.app-progress.red {
+    /*background-image: linear-gradient(to right, #FFC107, #F44336);*/
+}
+
+.app-lock {
+    opacity: 0.7;
+    margin-top: 35vh;
+    margin-left: calc(50% - 100px);
+    width: 200px;
+    text-align: center;
+}
+
+.el-cascader {
+    width: 100%;
+}
+
+#aside {
+    position: fixed;
+    left: 0;
+    height: 100% !important;
+}
+
+#main {
+    width: calc(100% - 318px);
+    margin-left: 318px;
+}
+
+.el-dialog {
+    border-radius: 12px !important;
+    box-shadow: 0 0 15px -3px rgba(0, 0, 0, .2);
+}
+
+.el-dialog__body {
+    word-break: unset !important;
+}
+
+.el-input-number {
+    width: 100%;
+}
+
+.api-errors {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 1rem;
+    background: #000;
+    color: #FFF;
+    z-index: 99999;
+    display: block;
+    max-height: 50vh;
+    overflow: auto;
+    opacity: 0.9;
+}
+
+.api-errors pre {
+    padding: 0 !important;
+    margin: 0 !important;
+    background: #000;
+}
+
+.api-errors .app-warning-close {
+    position: absolute;
+    top: 10px;
+    color: #FFF;
+    font-size: 18px;
+    right: 10px;
+}
+
+.bg-dark .el-button--default {
+    background: #232527;
+    border: 1px solid #1F2124;
+}
+.el-button{
+    border-radius: 8px;
+}
+.card {
+    border-radius: 10px !important;
+}
+
+.Password {
+    width: 100% !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+}
+
+.Password__group {
+    width: 100% !important;
+}
+
+.Password__field {
+    -webkit-appearance: none;
+    background-color: inherit !important;
+    background-image: none;
+    border-radius: 4px !important;
+    border: 1px solid #DCDFE6 !important;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    color: #606266;
+    display: inline-block;
+    font-size: inherit;
+    height: 40px;
+    line-height: 40px;
+    outline: 0;
+    padding: 0 15px;
+    -webkit-transition: border-color .2s cubic-bezier(.645, .045, .355, 1);
+    transition: border-color .2s cubic-bezier(.645, .045, .355, 1);
+    width: 100% !important;
+}
+
+.btn-clean svg {
+    height: 16px !important;
+    width: 16px !important;
+}
+
+.Password__badge {
+    border-radius: 50px !important;
+    font-size: 10px !important;
+    padding: 2px 4px !important;
+}
+
+#content {
+    position: relative;
+    height: 100%;
+}
+
+#main {
+    height: 100%;
+    padding-top: 60px;
+}
+
+#app {
+    height: 100%;
+}
+
+html, body {
+    height: 100%;
+}
+
+.app-module-modal {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding-right: 2rem;
+    padding-left: 2rem;
+    transition: 0.1s;
+    opacity: 1;
+    background: #F9F9FA;
+    z-index: 99;
+    min-height: 100%;
+}
+
+.el-input__inner:focus {
+    border: 1px solid #448bff !important;
+    outline: 0 !important;
+    box-shadow: 0 0 0 .2rem rgba(68, 139, 255, .25) !important;
+}
+
+textarea:focus {
+    border: 1px solid #448bff !important;
+    outline: 0 !important;
+    box-shadow: 0 0 0 .2rem rgba(68, 139, 255, .25) !important;
+}
+
+.el-table .el-table__header thead tr {
+    background: inherit !important;
+}
+
+.bg-dark .app-table-pagination {
+    background: #1F2124;
+}
+
+.bg-dark .el-table__row {
+    background-color: #27292C !important;
+}
+
+.bg-dark .app-module-modal {
+    background: #1F2124;
+}
+
+.bg-dark #header {
+    background: #1F2124;
+}
+
+.app-module-main {
+    border-right: 0 !important;
+}
+
+.el-divider {
+    margin-left: -1.75rem !important;
+    width: calc(100% + 3.5rem);
+    opacity: 0.65 !important;
+}
+
+.app-modal.el-dialog {
+    margin-top: 5vh !important;
+    margin-bottom: 5vh !important;
+    height: 90vh !important;
+}
+
+.app-modal .el-dialog__header {
+    padding: 20px;
+    box-shadow: 0 0 12px -4px rgba(0, 0, 0, 0.1);
+}
+
+.app-modal .el-dialog__footer {
+    padding: 20px;
+    box-shadow: 0 0 12px -4px rgba(0, 0, 0, 0.1);
+}
+
+.app-modal .el-dialog__body {
+    height: calc(90vh - 136px) !important;
+    overflow-y: auto;
+    padding: 20px;
+    position: relative;
+    display: block;
+}
+
+body {
+    overflow-y: scroll;
+}
+
+#header {
+    position: fixed;
+    left: 318px;
+    top: 0;
+    width: calc(100% - 318px);
+    transition: 0s !important;
+}
+
+.navbar .navbar-collapse .el-select .el-input.is-focus .el-input__inner {
+    border: 0 !important;
+    background-color: inherit !important;
+}
+
+.navbar .navbar-collapse .el-input__suffix {
+    display: none;
+}
+
+.navbar .navbar-collapse .el-input__inner {
+    border: 0 !important;
+    background-color: inherit !important;
+    padding-left: 1.5rem;
+    font-weight: 300 !important;
+}
+
+.navbar .navbar-collapse .el-input__inner:focus {
+    box-shadow: none !important;
+}
+
+.sidenav .el-input__inner {
+    border: 0 !important;
+    background-color: inherit !important;
+    font-weight: 300 !important;
+}
+
+
+
+/* SHADOWS */
+
+.card,.app-module-toolbar, .el-table__row{
+    border:0 solid transparent !important;
+}
+.card{
+    box-shadow: 0 5px 20px -12px rgba(0,0,0,0.15) !important;
+}
+.app-module-toolbar.actions{
+    box-shadow: none !important;
+}
+.app-module-toolbar, .el-table__row{
+    border:0 !important;
+    box-shadow: 0 2px 12px -5px rgba(112, 87, 87, 0.1) !important;
+    transition: 0.5s;
+}
+.el-table__row:hover{
+    
+    box-shadow: 0 3px 14px -5px rgba(0,0,0,0.20) !important;
+}
+.el-popper{
+    transition: 0.3s !important;
+    border:0 !important;
+    box-shadow: 0 10px 70px rgba(0,0,0,0.15) !important;
+    border-radius: 10px !important;
+}
+.el-popper[x-placement^=bottom] .popper__arrow{
+    border: transparent !important;
+}
+
+
+.bg-dark .el-popper{
+    box-shadow: 0 15px 70px rgba(0,0,0,0.25) !important;
+}
+
+/* Radius And New Designs */
+.el-select-dropdown{
+    padding:0 0.4rem 0.4rem 0.4rem;
+}
+
+.el-select-dropdown .el-select-dropdown__item{
+    border-radius: 8px;
+}
+ion-icon:before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+
+
+.el-message-box__message p {
+  text-align: center;
+  padding: 0 !important;
+  font-size: 13px;
+  line-height: 18px !important;
+  opacity: 0.8;
+  margin-bottom: 5px;
+}
+
+.el-message-box {
+  padding: 0 !important;
+  width: 280px;
+}
+
+.el-message-box__header {
+  text-align: center;
+  padding-top: 20px;
+  padding-bottom: 0 !important;
+}
+
+.el-message-box__title {
+  font-size: 14px;
+}
+
+.el-message-box__btns {
+  border-top: 1px solid #EFEFEF;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.el-message-box__btns button:hover {
+  color: #006BEC;
+  background: #FAFAFA !important;
+}
+
+.el-message-box__btns button {
+  background: inherit !important;
+  display: inline-block;
+  width: 50%;
+  border: 0;
+  padding: 15px 0;
+  text-align: center;
+  color: #006BEC !important;
+  margin: 0 !important;
+  font-weight: 700;
+}
+
+.el-message-box__btns button:first-child {
+  color: #444;
+  border-right: 1px solid #EFEFEF;
+  width: calc(50% - 1px);
+}
+
+.el-message-box__headerbtn {
+  display: none;
+}
+
+.el-message-box__status {
+  display: none;
+}
+
+/* Funnel */
+.label__value {
+	color: #444 !important;
+}
+
+.svg-funnel-js__subLabel--title {
+	color: #444 !important;
+}
+
+.bg-dark .label__value {
+	color: #fff;
+}
+
+.bg-dark .svg-funnel-js__subLabel--title {
+	color: #fff;
+}
+
+.svg-funnel-js
+	.svg-funnel-js__labels
+	.svg-funnel-js__label
+	.label__segment-percentages {
+	background-color: rgba(0, 0, 0, 0.8);
+	border-radius: 8px;
+	left: 1rem !important;
+	width: calc(100% - 2rem);
+}
+.app-simple-table .el-table th > .cell{
+    font-size:12px;
+    text-transform: uppercase;
+    font-weight: 400;
+}

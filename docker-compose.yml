@@ -1,0 +1,21 @@
+name: nebula-ui
+
+services:
+  ui:
+    build:
+      context: .
+    image: nebula-ui:latest
+    container_name: nebula_ui
+    restart: unless-stopped
+    ports:
+      - "3001:8080"
+    environment:
+      TZ: Europe/Istanbul
+    volumes:
+      - .:/app
+      - /app/node_modules
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "20"

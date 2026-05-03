@@ -1,0 +1,527 @@
+{
+  "message": "Hoş geldiniz",
+  "action": {
+    "add": "Ekle",
+    "save": "Kaydet",
+    "update": "Güncelle",
+    "edit": "Düzenle",
+    "back": "Geri",
+    "archive": "Arşivle",
+    "unarchive": "Aşivden Kaldır",
+    "copy": "Kopyala",
+    "login": "Giriş",
+    "logout": "Çıkış Yap",
+    "delete": "Sil"
+  },
+  "constants": {
+    "search": "Ara",
+    "search_placeholder": "Ara...",
+    "not_found": "Hiçbir şey bulunmadı."
+  },
+  "view": {
+    "starter": {
+      "remaining_user": "dakikanız kaldı.",
+      "total_user": "Toplam Kotanız.",
+      "user": "Kullanıcı",
+      "buy_user": "Kullanıcı Satın Al",
+      "announcements": "Duyurular",
+      "date": "Tarih",
+      "announcement": "Duyuru",
+      "remaining_time": "dakikanız kaldı.",
+      "total_time": "Toplam Dakikanız",
+      "minute": "Dakika",
+      "buy_time": "Dakika Satın Al",
+      "inbound": "İç Arama",
+      "outbound": "Dış Arama"
+    },
+    "customer": {
+      "customer_detail": "Müşteri Bilgileri",
+      "field_name": "Şirket Adı",
+      "field_responsible_name": "Yetkili Kişi Adı",
+      "field_responsible_name_description": "Yetkili kişiler sistem üzerinde sizin tarafınızdan görüntülenir.",
+      "field_email": "Yetkili Kişi E-posta Adresi"
+    },
+    "user": {
+      "user_detail": "Kullanıcı Bilgileri",
+      "session": "Oturum",
+      "field_name": "Ad",
+      "field_surname": "Soyad",
+      "field_email": "E-posta Adresi",
+      "field_password": "Şifre",
+      "field_password_again": "Şifre Tekrarı"
+    },
+    "announcement": {
+      "announcement_detail": "Duyuru Bilgileri",
+      "visibility": "Görünürlük",
+      "field_title": "Başlık",
+      "field_description": "Açıklama",
+      "field_is_global": "Herkes Görüntüleyebilir",
+      "field_expiration_date": "Geçerlilik Tarihi",
+      "field_expiration_date_placeholder": "Tarih Seç",
+      "field_is_pinned": "Üste Sabitle"
+    }
+  },
+  "menu": {
+    "menu": "Menü",
+    "search_module_placeholder": "Modül Ara...",
+    "my_favorites": "Favorilerim",
+    "modules": {
+      "settings": {
+        "title": "Ayarlar",
+        "description": ""
+      },
+      "starter": {
+        "title": "Başlangıç",
+        "description": ""
+      },
+      "dashboard": {
+        "title": "Pano",
+        "description": "Ana ekran panolarını görüntüler."
+      },
+      "agent_call_history": {
+        "title": "Çağrı Geçmişim",
+        "description": "Kendi geçmiş çağrılarını görüntüler."
+      },
+      "all_calls_report": {
+        "title": "Tüm Çağrılar",
+        "description": "Tüm çağrı kayıtlarını görüntüler."
+      },
+      "missed_calls": {
+        "title": "Cevapsız Çağrılar",
+        "description": "Cevapsız kalan gelen çağrıları görüntüler."
+      },
+      "inbound_call": {
+        "title": "Çağrı Alabilir",
+        "description": ""
+      },
+      "result_code_report": {
+        "title": "Sonuç Kodu Analiz",
+        "description": "Sonuç kodu dağılım raporunu görüntüler."
+      },
+      "outbound_call": {
+        "title": "Dış Arama",
+        "description": ""
+      },
+      "break": {
+        "title": "Mola",
+        "description": ""
+      },
+      "call_task": {
+        "title": "Arama Listem",
+        "description": "Randevularını ve kendisine atanmış aramaları görür."
+      },
+      "agent": {
+        "title": "Temsilci",
+        "description": ""
+      },
+      "real_time": {
+        "title": "Canlı İzleme",
+        "description": "Canlı izleme ekranını açar."
+      },
+      "real_time_v2": {
+        "title": "Canlı İzleme v2",
+        "description": ""
+      },
+      "real_time_monitor": {
+        "title": "Yönetici İzleme",
+        "description": ""
+      },
+      "announcement": {
+        "title": "Duyurular",
+        "description": "Ana ekrandaki duyuruları görür."
+      },
+      "call_recording_report": {
+        "title": "Ses Kayıt Raporu",
+        "description": "Çağrı ses kayıtlarını görüntüler ve dinler."
+      },
+      "agent_performance": {
+        "title": "Temsilci Performansı",
+        "description": "Temsilcilerin gelen, giden, mola ve konuşma sürelerini görüntüler."
+      },
+      "agent_state_statuses": {
+        "title": "Hat Durum Geçmişi",
+        "description": ""
+      },
+      "call_detail_report": {
+        "title": "Çağrı Detay",
+        "description": ""
+      },
+      "customer_list": {
+        "title": "Müşteriler",
+        "description": "Müşterileri listeler."
+      },
+      "customer_create": {
+        "title": "Müşteri Oluştur",
+        "description": "Yeni müşteri ekler."
+      },
+      "customer_edit": {
+        "title": "Müşteri Düzenle",
+        "description": "Müşteri bilgilerini düzenler."
+      },
+      "customer_show": {
+        "title": "Müşteri",
+        "description": ""
+      },
+      "user_list": {
+        "title": "Kullanıcılar",
+        "description": "Kullanıcıları listeler."
+      },
+      "user_create": {
+        "title": "Kullanıcı Oluştur",
+        "description": "Yeni kullanıcı ekler."
+      },
+      "user_edit": {
+        "title": "Kullanıcı Düzenle",
+        "description": "Kullanıcı bilgilerini düzenler."
+      },
+      "user_delete": {
+        "title": "Kullanıcı Sil",
+        "description": "Kullanıcı hesabını siler."
+      },
+      "user_show": {
+        "title": "Kullanıcı",
+        "description": ""
+      },
+      "state_list": {
+        "title": "Hat Durumları",
+        "description": ""
+      },
+      "state_create": {
+        "title": "Hat Durumu Oluştur",
+        "description": ""
+      },
+      "state_edit": {
+        "title": "Hat Durumu Düzenle",
+        "description": ""
+      },
+      "state_delete": {
+        "title": "Hat Durumu Sil",
+        "description": ""
+      },
+      "state_show": {
+        "title": "Hat Durumu",
+        "description": ""
+      },
+      "announcement_list": {
+        "title": "Duyurular",
+        "description": "Tanımlı duyuruları listeler."
+      },
+      "announcement_create": {
+        "title": "Duyuru Oluştur",
+        "description": "Yeni duyuru ekler."
+      },
+      "announcement_edit": {
+        "title": "Duyuru Düzenle",
+        "description": "Mevcut duyuruları düzenler."
+      },
+      "announcement_delete": {
+        "title": "Duyuru Sil",
+        "description": "Duyuruyu siler."
+      },
+      "announcement_show": {
+        "title": "Duyuru",
+        "description": ""
+      },
+      "messages": {
+        "title": "Mesajlar",
+        "description": ""
+      },
+      "account_settings": {
+        "title": "Hesap Ayarları",
+        "description": ""
+      },
+      "pbx_list": {
+        "title": "Santraller",
+        "description": "PBX sunucularını listeler."
+      },
+      "pbx_create": {
+        "title": "Santral Oluştur",
+        "description": "Yeni PBX sunucu tanımlar."
+      },
+      "pbx_delete": {
+        "title": "Santral Sil",
+        "description": "PBX sunucu kaydını siler."
+      },
+      "pbx_edit": {
+        "title": "Santral Düzenle",
+        "description": "PBX sunucu ayarlarını düzenler."
+      },
+      "pbx_show": {
+        "title": "Santral",
+        "description": ""
+      },
+      "queue_list": {
+        "title": "Arama Grupları",
+        "description": "Çağrı kuyruklarını listeler."
+      },
+      "queue_create": {
+        "title": "Arama Grubu Oluştur",
+        "description": "Yeni çağrı kuyruğu tanımlar."
+      },
+      "queue_delete": {
+        "title": "Arama Grubu Sil",
+        "description": "Kuyruğu siler."
+      },
+      "queue_edit": {
+        "title": "Arama Grubu Düzenle",
+        "description": "Kuyruk ayarlarını düzenler."
+      },
+      "queue_show": {
+        "title": "Arama Grubu",
+        "description": ""
+      },
+      "call_list_list": {
+        "title": "Arama Listeleri",
+        "description": "Arama listelerini görüntüler."
+      },
+      "call_list_create": {
+        "title": "Arama Listesi Oluştur",
+        "description": "Yeni arama listesi oluşturur."
+      },
+      "call_list_delete": {
+        "title": "Arama Listesi Sil",
+        "description": "Arama listesini siler."
+      },
+      "call_list_show": {
+        "title": "Arama Listesi",
+        "description": ""
+      },
+      "call_list_edit": {
+        "title": "Arama Listesi Düzenle",
+        "description": "Arama listesinin içeriğini düzenler."
+      },
+      "call_endpoint_list": {
+        "title": "Arama Endpoint'leri",
+        "description": "Arama endpoint'lerini listeler."
+      },
+      "call_endpoint_create": {
+        "title": "Arama Endpoint Oluştur",
+        "description": "Yeni arama endpoint'i tanımlar."
+      },
+      "call_endpoint_delete": {
+        "title": "Arama Endpoint Sil",
+        "description": "Endpoint'i siler."
+      },
+      "call_endpoint_show": {
+        "title": "Arama Endpoint",
+        "description": ""
+      },
+      "call_endpoint_edit": {
+        "title": "Arama Endpoint Düzenle",
+        "description": "Endpoint ayarlarını düzenler."
+      },
+      "dialplan_list": {
+        "title": "Arama Planları",
+        "description": "Arama planlarını listeler."
+      },
+      "dialplan_create": {
+        "title": "Arama Planı Oluştur",
+        "description": "Yeni arama planı tanımlar."
+      },
+      "dialplan_delete": {
+        "title": "Arama Planı Sil",
+        "description": "Arama planını siler."
+      },
+      "dialplan_show": {
+        "title": "Arama Planı",
+        "description": ""
+      },
+      "dialplan_edit": {
+        "title": "Arama Planı Düzenle",
+        "description": "Arama planı akışını düzenler."
+      },
+      "number_list": {
+        "title": "Numaralar",
+        "description": "Santrale tanımlı numaraları listeler."
+      },
+      "number_create": {
+        "title": "Numara Oluştur",
+        "description": "Santrale yeni numara tanımlar."
+      },
+      "number_remove": {
+        "title": "Numara Sil",
+        "description": ""
+      },
+      "number_show": {
+        "title": "Numara",
+        "description": ""
+      },
+      "number_edit": {
+        "title": "Numara Düzenle",
+        "description": "Santral numarasının ayarlarını düzenler."
+      },
+      "soft_phone": {
+        "title": "Sip Telefon",
+        "description": "Soft phone üzerinden çağrı alır ve başlatır."
+      },
+      "permit_list": {
+        "title": "Yetki Listesi",
+        "description": "Sistemdeki yetkileri listeler."
+      },
+      "permit_add": {
+        "title": "Yetki Ekle",
+        "description": "Kullanıcıya yetki atar."
+      },
+      "permit_remove": {
+        "title": "Yetkli Kaldır",
+        "description": "Kullanıcıdan yetki kaldırır."
+      },
+      "blacklist_list": {
+        "title": "Karaliste",
+        "description": "Engellenen numaraları listeler."
+      },
+      "blacklist_show": {
+        "title": "Karaliste Numarası",
+        "description": ""
+      },
+      "blacklist_edit": {
+        "title": "Karaliste Numarası Düzenle",
+        "description": "Engel kaydını düzenler."
+      },
+      "blacklist_create": {
+        "title": "Karaliste Numarası Ekle",
+        "description": "Yeni numara engeli tanımlar."
+      },
+      "blacklist_delete": {
+        "title": "Karaliste Numarası Sil",
+        "description": "Engeli kaldırır."
+      },
+      "number_delete": {
+        "title": "Numara Sil",
+        "description": "Santral numarasını siler."
+      },
+      "reports": {
+        "title": "Raporlar",
+        "description": ""
+      },
+      "operation": {
+        "title": "Operasyon",
+        "description": ""
+      },
+      "inbound_report": {
+        "title": "Gelen Aramalar",
+        "description": "Gelen çağrı raporlarını görüntüler."
+      },
+      "outbound_report": {
+        "title": "Giden Aramalar",
+        "description": "Giden çağrı raporlarını görüntüler."
+      },
+      "crm_form_report": {
+        "title": "Crm Form Sonuçları",
+        "description": "CRM formları üzerinden toplanan verilerin raporunu görür."
+      },
+      "pending_session": {
+        "title": "Aktif Oturum Sonlandırma",
+        "description": "Askıda kalan kullanıcı oturumlarını sonlandırır."
+      },
+      "contact_list": {
+        "title": "Kişiler",
+        "description": "CRM kişi listesini görür."
+      },
+      "contact_create": {
+        "title": "Kişi Oluştur",
+        "description": "CRM'ye yeni kişi ekler."
+      },
+      "contact_edit": {
+        "title": "Kişi Düzenle",
+        "description": "Kişi bilgilerini (ad, soyad, e-posta, risk notu vb.) düzenler."
+      },
+      "contact_show": {
+        "title": "Kişi",
+        "description": "Kişi detay sayfasını açar."
+      },
+      "contact_delete": {
+        "title": "Kişi Sil",
+        "description": ""
+      },
+      "result_code_list": {
+        "title": "Sonuç Kodları",
+        "description": "Sonuç kodlarını listeler."
+      },
+      "result_code_create": {
+        "title": "Sonuç Kodu Oluştur",
+        "description": "Yeni sonuç kodu tanımlar."
+      },
+      "result_code_edit": {
+        "title": "Sonuç Kodu Düzenle",
+        "description": "Sonuç kodunu düzenler."
+      },
+      "result_code_show": {
+        "title": "Sonuç Kodu",
+        "description": "Sonuç kodu detayını görüntüler."
+      },
+      "result_code_delete": {
+        "title": "Sonuç Kodu Sil",
+        "description": "Sonuç kodunu siler."
+      },
+      "sms_template_list": {
+        "title": "Sms Taslakları",
+        "description": ""
+      },
+      "sms_template_create": {
+        "title": "Taslak Oluşur",
+        "description": ""
+      },
+      "sms_template_edit": {
+        "title": "Taslak Düzenle",
+        "description": ""
+      },
+      "sms_template_show": {
+        "title": "Taslak",
+        "description": ""
+      },
+      "sms_template_delete": {
+        "title": "Taslak Sil",
+        "description": ""
+      },
+      "crm_form_list": {
+        "title": "Crm Formları",
+        "description": "CRM formlarını listeler."
+      },
+      "crm_form_create": {
+        "title": "Crm Formu Oluşur",
+        "description": "Yeni CRM formu oluşturur."
+      },
+      "crm_form_edit": {
+        "title": "Crm Formu Düzenle",
+        "description": "Mevcut bir CRM formunu düzenler."
+      },
+      "crm_form_show": {
+        "title": "Crm Formu",
+        "description": "CRM formu detayını görüntüler."
+      },
+      "crm_form_delete": {
+        "title": "Crm Formu Sil",
+        "description": "CRM formunu siler."
+      },
+      "customer_delete": {
+        "title": "Müşteri Sil",
+        "description": "Müşteri kaydını siler."
+      },
+      "sensitive_data": {
+        "contact_phone": {
+          "title": "Kişi Telefonu Görme",
+          "description": "Kişilerin telefon numaralarını açık görür."
+        },
+        "contact_national_id": {
+          "title": "Kişi TC Kimlik Görme",
+          "description": "Kişilerin TC kimlik numaralarını açık görür."
+        },
+        "contact_email": {
+          "title": "Kişi E-posta Görme",
+          "description": "Kişilerin e-posta adreslerini açık görür."
+        }
+      }
+    }
+  },
+  "module": {
+    "message": {
+      "user_not_fount_title": "Kullanıcı Bulunamadı",
+      "user_not_fount_description": "Hiçbir kullanıcı bulunamadı.",
+      "create_user": "Yeni Kullanıcı Oluştur",
+      "landing_title": "Takım Arkadaşlarınızla İletişim De Nebula'ya Dahil",
+      "create_message": "Yeni Sohbet Oluştur",
+      "landing_description": "Tüm evrenle iletişimin belki de en büyük parçası takım arkadaşlarınızla iletişim kurabilmek. Aktif sohbetlerinizi görüntüleyebilir veya yeni bir sohbet oluşturabilirsiniz."
+    }
+  }
+}

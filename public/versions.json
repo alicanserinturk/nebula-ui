@@ -1,0 +1,50 @@
+{
+	"versions": [
+		{
+			"version": "3.0.92",
+			"description": "Genel güncellemeler",
+			"content_type": "json",
+			"release_date": "2021-09-13 18:00:00",
+			"content": []
+		},
+		{
+			"version": "3.0.73",
+			"description": "Genel güncellemeler",
+			"content_type": "json",
+			"release_date": "2021-08-26 00:20:00",
+			"content": [
+				{
+					"title:": "Arayüz",
+					"items": [
+						"Tüm çağrılarımda ses dosyasını indirme sorunu giderildi, yüklemesi tamamlanmayan dosyalar için ibare eklendi, dosya boyut bilgisi eklendi.",
+						"Medya Kütüphanesinde silinen dosyalarla ilgili hata düzeltildi ve silme işlemi için onay gereksinimi eklendi."
+					],
+					"images": ["/assets/img/versions/3.0.73-confirm.png","/assets/img/versions/3.0.73-sound.png"]
+				}
+			]
+		},
+		{
+			"version": "3.0.36",
+			"description": "Arayüz güncellemeleri ve hata düzeltmeleri.",
+			"content_type": "json",
+			"release_date": "2021-03-29 00:00:00",
+			"content": [
+				{
+					"title:": "Arayüz Güncelleme",
+					"items": [
+						"Yeni güncellemeler bildirimlere eklendi.",
+						"Güncelleme sonrası bilgilendirme metni eklendi."
+					],
+					"images": ["/assets/img/versions/3.0.37-updates.png"]
+				},
+				{
+					"title:": "Hata Düzeltmeleri",
+					"items": [
+						"Bazı durumlarda uygulama beyaz ekranda kalıyordu, giderildi."
+					],
+					"images": []
+				}
+			]
+		}
+	]
+}

@@ -1,0 +1,213 @@
+{
+  "message": "Welcome",
+  "action": {
+    "add": "Add",
+    "save": "Save",
+    "update": "Update",
+    "edit": "Edit",
+    "back": "Back",
+    "archive": "Archive",
+    "unarchive": "Unarchive",
+    "copy": "Copy",
+    "login": "Login",
+    "logout": "Logout",
+    "delete": "Delete"
+  },
+  "constants": {
+    "search": "Search",
+    "search_placeholder": "Search...",
+    "not_found": "Not found."
+  },
+  "view": {
+    "starter": {
+      "remaining_user": "minutes left.",
+      "total_user": "Total Users.",
+      "user": "User",
+      "buy_user": "Buy User Right",
+      "announcements": "Announcements",
+      "date": "Date",
+      "announcement": "Announcement",
+      "remaining_time": "minutes left.",
+      "total_time": "Total Minutes",
+      "minute": "Minute",
+      "buy_time": "Buy Minute",
+      "inbound": "Inbound",
+      "outbound": "Outbound"
+    },
+    "customer": {
+      "customer_detail": "Customer",
+      "field_name": "Customer Name",
+      "field_responsible_name": "Short Name",
+      "field_responsible_name_description": "Short name description",
+      "field_email": "E-mail Address"
+    },
+    "user": {
+      "user_detail": "User",
+      "session": "Session",
+      "field_name": "Name",
+      "field_surname": "Surname",
+      "field_email": "E-mail Address",
+      "field_password": "Password",
+      "field_password_again": "Repeat Password"
+    },
+    "announcement": {
+      "announcement_detail": "Announcement",
+      "visibility": "Visibility",
+      "field_title": "Title",
+      "field_description": "Description",
+      "field_is_global": "Everybody View",
+      "field_expiration_date": "Expiration Date",
+      "field_expiration_date_placeholder": "Choose Date",
+      "field_is_pinned": "Pin to Top"
+    }
+  },
+  "menu": {
+    "menu": "Menu",
+    "search_module_placeholder": "Search Module...",
+    "my_favorites": "My Favorites",
+    "modules" : {
+      "settings": {
+        "title": "Settings",
+        "description": ""
+      },
+      "starter": {
+        "title": "Starter",
+        "description": ""
+      },
+      "dashboard": {
+        "title": "Dashboard",
+        "description": ""
+      },
+      "agent_call_history": {
+        "title": "My Call History",
+        "description": ""
+      },
+      "inbound_call": {
+        "title": "Inbound Callable",
+        "description": ""
+      },
+      "outbound_call": {
+        "title": "Outbound Callable",
+        "description": ""
+      },
+      "break": {
+        "title": "Break",
+        "description": ""
+      },
+      "call_task": {
+        "title": "My Call Tasks",
+        "description": ""
+      },
+      "agent": {
+        "title": "Agent",
+        "description": ""
+      },
+      "real_time": {
+        "title": "Real Time",
+        "description": ""
+      },
+      "real_time_v2": {
+        "title": "Real Time v2",
+        "description": ""
+      },
+      "real_time_monitor": {
+        "title": "Manager Monitor",
+        "description": ""
+      },
+      "announcement": {
+        "title": "Announcements",
+        "description": ""
+      },
+      "call_recording_report": {
+        "title": "Call Recordings",
+        "description": ""
+      },
+      "agent_performance": {
+        "title": "Agent Performance",
+        "description": ""
+      },
+      "call_detail_report": {
+        "title": "Call Detail Report",
+        "description": ""
+      },
+      "missed_calls": {
+        "title": "Missed Calls",
+        "description": ""
+      },
+      "customer_list": {
+        "title": "Customers",
+        "description": ""
+      },
+      "customer_create": {
+        "title": "Create Customer",
+        "description": ""
+      },
+      "customer_edit": {
+        "title": "Edit Customer",
+        "description": ""
+      },
+      "customer_show": {
+        "title": "Customer",
+        "description": ""
+      },
+      "user_list": {
+        "title": "Users",
+        "description": ""
+      },
+      "user_create": {
+        "title": "Create User",
+        "description": ""
+      },
+      "user_edit": {
+        "title": "Edit User",
+        "description": ""
+      },
+      "user_delete": {
+        "title": "Delete Userl",
+        "description": ""
+      },
+      "user_show": {
+        "title": "User",
+        "description": ""
+      },
+      "announcement_list": {
+        "title": "Announcements",
+        "description": ""
+      },
+      "announcement_create": {
+        "title": "Create Announcement",
+        "description": ""
+      },
+      "announcement_edit": {
+        "title": "Edit Announcement",
+        "description": ""
+      },
+      "announcement_delete": {
+        "title": "Delete Announcement",
+        "description": ""
+      },
+      "announcement_show": {
+        "title": "Announcement",
+        "description": ""
+      },
+      "messages": {
+        "title": "Messages",
+        "description": ""
+      },
+      "account_settings": {
+        "title": "Account Settings",
+        "description": ""
+      }
+    }
+  },
+  "module": {
+    "message": {
+      "user_not_fount_title": "Not Found",
+      "user_not_fount_description": "No user was found.",
+      "create_user": "Create New User",
+      "landing_title": "Messages",
+      "create_message": "Create New Message",
+      "landing_description": "No message was found. You can create a new message."
+    }
+  }
+}
