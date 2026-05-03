@@ -5,8 +5,7 @@
   "scripts": {
     "serve": "NODE_OPTIONS=--openssl-legacy-provider vue-cli-service serve",
     "version": "node src/utils/Version.js",
-    "build": "NODE_OPTIONS=--openssl-legacy-provider vue-cli-service build",
-    "deploy:test-server": "npm run build && rsync -avz --delete --delay-updates dist/ root@89.252.152.240:/opt/nebula/ui/dist/"
+    "build": "NODE_OPTIONS=--openssl-legacy-provider vue-cli-service build"
   },
   "dependencies": {
     "apexcharts": "^3.22.1",
