@@ -44,55 +44,75 @@
                             <!-- Sol: Ajan Grafiği -->
                             <div :class="agentChartCol" v-show="showAgentChart">
                                 <app-card :remove-body-padding="true" style="height: 100%;">
-                                    <div class="px-4 pt-3 pb-2 d-flex align-items-center justify-content-between">
-                                        <strong class="text-label text-muted">Müşteri Temsilcisi</strong>
-                                        <span class="badge badge-pill bg-light">
-                                            <ion-icon name="people-outline" class="mr-1"></ion-icon>
-                                            {{ onlineUsers.length }} / {{ users.length }}
-                                        </span>
+                                    <div class="px-4 pt-3 pb-2">
+                                        <div class="d-flex align-items-center justify-content-between mb-2">
+                                            <strong class="text-label text-muted">Müşteri Temsilcisi</strong>
+                                            <span class="badge badge-pill bg-light">
+                                                <ion-icon name="people-outline" class="mr-1"></ion-icon>
+                                                {{ onlineUsers.length }} / {{ users.length }}
+                                            </span>
+                                        </div>
+                                        <div class="d-flex align-items-center justify-content-between flex-wrap rm-chart-filters">
+                                            <el-radio-group size="mini" v-model="agentChartDirection" class="app-call-chart">
+                                                <el-radio-button :label="null">Tümü</el-radio-button>
+                                                <el-radio-button label="in">Gelen</el-radio-button>
+                                                <el-radio-button label="out">Giden</el-radio-button>
+                                            </el-radio-group>
+                                            <el-radio-group size="mini" v-model="agentChartType" class="app-call-chart">
+                                                <el-radio-button label="simple">Basit</el-radio-button>
+                                                <el-radio-button label="advanced">Gelişmiş</el-radio-button>
+                                            </el-radio-group>
+                                        </div>
                                     </div>
                                     <div class="px-3 pb-3">
-                                        <!-- ── ÇİFT HALKA GRAFİK ── -->
-                                        <div v-if="onlineUsers.length > 0" class="rm-chart-wrap">
-                                            <!-- Dış halka: Roller / DB durumları -->
-                                            <div class="rm-chart-outer">
-                                                <apexchart type="donut" width="260" height="260" :options="outerChartOptions" :series="outerChartSeries"></apexchart>
-                                            </div>
-                                            <!-- İç halka: PBX / fiziksel durum -->
-                                            <div class="rm-chart-inner">
-                                                <apexchart type="donut" width="162" height="162" :options="innerChartOptions" :series="innerChartSeries"></apexchart>
-                                            </div>
-                                        </div>
-                                        <div v-else class="d-flex flex-column align-items-center justify-content-center text-muted" style="height: 240px;">
+                                        <!-- ── GRAFİK ── -->
+                                        <div v-if="onlineUsers.length === 0" class="d-flex flex-column align-items-center justify-content-center text-muted" style="height: 240px;">
                                             <app-svg style="height: 90px; opacity: 0.5;" class="mb-3" src="/assets/img/vectors/users.svg"></app-svg>
                                             <small class="font-weight-bold">Çevrimiçi ajan bulunmuyor</small>
                                         </div>
 
-                                        <!-- ── PBX DURUM STAT KARTLARI ── -->
-                                        <div class="rm-stat-label">
-                                            <ion-icon name="radio-outline" class="mr-1"></ion-icon> PBX Durumu
-                                        </div>
-                                        <div class="row row-sm mb-1">
-                                            <div v-for="(stat, i) in innerStats" :key="'is-' + i" class="col-6 mb-2">
-                                                <div class="rm-stat-card pointer"
-                                                     :class="{ 'rm-stat-card--active': agentFilter.status === stat.key }"
-                                                     @click="toggleAgentFilter(stat.key)">
-                                                    <span class="rm-stat-dot" :style="{ background: stat.color }"></span>
-                                                    <div>
-                                                        <strong class="rm-stat-count">{{ stat.count }}</strong>
-                                                        <div><small class="text-muted" style="font-size:10px">{{ stat.label }}</small></div>
-                                                    </div>
-                                                </div>
+                                        <!-- Gelişmiş: iç içe iki halka -->
+                                        <div v-else-if="agentChartType === 'advanced'" class="rm-chart-wrap">
+                                            <div class="rm-chart-outer">
+                                                <apexchart type="donut" width="260" height="260" :options="advancedOuterOptions" :series="advancedOuterSeries"></apexchart>
+                                            </div>
+                                            <div class="rm-chart-inner">
+                                                <apexchart type="donut" width="180" height="180" :options="advancedInnerOptions" :series="advancedInnerSeries"></apexchart>
                                             </div>
                                         </div>
 
-                                        <!-- ── ROL / GÖREV STAT KARTLARI ── -->
-                                        <template v-if="outerStats.length > 0">
+                                        <!-- Basit / Karmaşık: tek halka -->
+                                        <div v-else class="rm-chart-wrap">
+                                            <apexchart type="donut" width="260" height="260" :options="singleChartOptions" :series="singleChartSeries"></apexchart>
+                                        </div>
+
+                                        <!-- ── ÇAĞRI DURUMU STAT KARTLARI ── -->
+                                        <template v-if="callStateCards.length > 0">
+                                            <div class="rm-stat-label">
+                                                <ion-icon name="radio-outline" class="mr-1"></ion-icon> Çağrı Durumu
+                                            </div>
+                                            <div class="row row-sm mb-1">
+                                                <div v-for="(stat, i) in callStateCards" :key="'cs-' + i" class="col-6 mb-2">
+                                                    <div class="rm-stat-card pointer"
+                                                         :class="{ 'rm-stat-card--active': agentFilter.status === stat.key }"
+                                                         @click="toggleAgentFilter(stat.key)">
+                                                        <span class="rm-stat-dot" :style="{ background: stat.color }"></span>
+                                                        <div>
+                                                            <strong class="rm-stat-count">{{ stat.count }}</strong>
+                                                            <div><small class="text-muted" style="font-size:10px">{{ stat.label }}</small></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </template>
+
+                                        <!-- ── DİĞER DURUMLAR STAT KARTLARI ── -->
+                                        <template v-if="otherStateCards.length > 0">
                                             <div class="rm-stat-label mt-1">
-                                                <ion-icon name="briefcase-outline" class="mr-1"></ion-icon> Görev / Rol
+                                                <ion-icon name="briefcase-outline" class="mr-1"></ion-icon> Diğer Durumlar
                                             </div>
                                             <div class="row row-sm">
-                                                <div v-for="(stat, i) in outerStats" :key="'os-' + i" class="col-6 mb-2">
+                                                <div v-for="(stat, i) in otherStateCards" :key="'os-' + i" class="col-6 mb-2">
                                                     <div class="rm-stat-card pointer"
                                                          :class="{ 'rm-stat-card--active': agentFilter.status === stat.key }"
                                                          @click="toggleAgentFilter(stat.key)">
@@ -111,7 +131,7 @@
 
                             <!-- Sağ: Ajan Listesi -->
                             <div :class="agentListCol" v-show="showAgentList">
-                                <app-card :remove-body-padding="true" style="height: 100%;">
+                                <app-card :remove-body-padding="true" class="rm-card-fill" style="height: 100%;">
                                     <div class="px-4 pt-3 pb-2 row">
                                         <div class="col">
                                             <strong class="text-label text-muted">Müşteri Temsilcisi</strong>
@@ -124,8 +144,8 @@
                                         </div>
                                     </div>
 
-                                    <div class="app-simple-table">
-                                        <el-table size="small" :data="filteredAgents" style="width: 100%" height="400">
+                                    <div class="app-simple-table rm-list-body">
+                                        <el-table size="small" :data="filteredAgents" style="width: 100%" height="100%">
                                             <el-table-column min-width="150" label="Kullanıcı" fixed="left">
                                                 <template slot-scope="scope">
                                                     <div class="d-flex align-items-center">
@@ -152,7 +172,7 @@
                                                     <span v-else class="text-muted small">—</span>
                                                 </template>
                                             </el-table-column>
-                                            <el-table-column label="Hat" min-width="110">
+                                            <el-table-column label="Operasyon" min-width="110">
                                                 <template slot-scope="scope">
                                                     <span v-if="resolveAgentNumber(scope.row)" class="small">
                                                         <ion-icon name="cellular-outline" class="mr-1 text-muted"></ion-icon>{{ resolveAgentNumber(scope.row) }}
@@ -164,8 +184,8 @@
                                                 <template slot-scope="scope">
                                                     <span class="badge badge-pill text-dark"
                                                           style="font-size: 11.5px;"
-                                                          :class="getAgentCallStatusBadge(scope.row.call_status)">
-                                                        {{ getAgentCallStatusLabel(scope.row.call_status) }}
+                                                          :class="getAgentCallStatusBadge(scope.row)">
+                                                        {{ getAgentCallStatusLabel(scope.row) }}
                                                         <span v-if="scope.row.started_at">
                                                             &bull;
                                                             <app-date-range-text :start-date="scope.row.started_at" :end-date="now.toString()"></app-date-range-text>
@@ -181,23 +201,35 @@
                             <!-- Sol: Çağrı Grafiği -->
                             <div :class="callChartCol" v-show="showCallChart">
                                 <app-card :remove-body-padding="true" style="height: 100%;">
-                                    <div class="px-4 pt-3 pb-2 d-flex align-items-center justify-content-between">
-                                        <strong class="text-label text-muted">Çağrı Trafiği</strong>
-                                        <span class="badge badge-pill bg-light">
-                                            <ion-icon name="call-outline" class="mr-1"></ion-icon>
-                                            {{ activeCalls.length }}
-                                        </span>
+                                    <div class="px-4 pt-3 pb-2">
+                                        <div class="d-flex align-items-center justify-content-between mb-2">
+                                            <strong class="text-label text-muted">Çağrı Trafiği</strong>
+                                            <span class="badge badge-pill bg-light">
+                                                <ion-icon name="call-outline" class="mr-1"></ion-icon>
+                                                {{ activeCalls.length }}
+                                            </span>
+                                        </div>
+                                        <div class="d-flex align-items-center rm-chart-filters">
+                                            <el-radio-group size="mini" v-model="callFilter.direction" class="app-call-chart">
+                                                <el-radio-button :label="null">Tümü</el-radio-button>
+                                                <el-radio-button label="in">Gelen</el-radio-button>
+                                                <el-radio-button label="out">Giden</el-radio-button>
+                                            </el-radio-group>
+                                        </div>
                                     </div>
                                     <div class="px-4 pb-3">
-                                        <div v-if="callChartVisible" class="pb-2">
-                                            <apexchart type="donut" height="240" :options="callChartOptions" :series="callChartSeries"></apexchart>
+                                        <div v-if="callChartVisible" class="rm-chart-wrap">
+                                            <apexchart type="donut" width="260" height="260" :options="callChartOptions" :series="callChartSeries"></apexchart>
                                         </div>
                                         <div v-else class="d-flex flex-column align-items-center justify-content-center text-muted" style="height: 240px; margin-bottom: 0.5rem">
                                             <app-svg style="height: 100px; opacity: 0.6;" class="mb-3" src="/assets/img/vectors/board-calls.svg"></app-svg>
                                             <small class="font-weight-bold">Aktif çağrı bulunmuyor</small>
                                         </div>
 
-                                        <div class="row row-sm mt-3">
+                                        <div class="rm-stat-label mt-3">
+                                            <ion-icon name="radio-outline" class="mr-1"></ion-icon> Çağrı Durumu
+                                        </div>
+                                        <div class="row row-sm">
                                             <div v-for="(stat, i) in callStats" :key="'cstat-' + i" class="col-6 mb-2">
                                                 <div class="d-flex bg-light r-3x p-2 pointer"
                                                      :class="{ 'border border-primary': callFilter.state === stat.key }"
@@ -223,7 +255,7 @@
 
                             <!-- Sağ: Çağrı Listesi -->
                             <div :class="callListCol" v-show="showCallList">
-                                <app-card :remove-body-padding="true" style="height: 100%;">
+                                <app-card :remove-body-padding="true" class="rm-card-fill" style="height: 100%;">
                                     <div class="px-4 pt-3 pb-2 row">
                                         <div class="col">
                                             <strong class="text-label text-muted">Aktif Çağrılar</strong>
@@ -249,16 +281,16 @@
                                         </span>
                                     </div>
 
-                                    <div v-if="filteredCalls.length === 0" class="card-body p-4 text-center">
+                                    <div v-if="filteredCalls.length === 0" class="rm-list-body p-4 d-flex align-items-center justify-content-center">
                                         <div class="text-center">
                                             <app-svg class="col-3 mx-auto" src="/assets/img/vectors/board-calls.svg"></app-svg>
                                             <h6 class="font-weight-bold">Aktif çağrı bulunmuyor</h6>
                                             <span>Herhangi bir aktif çağrı bulunduğunda bu alanda görüntüleyebileceksiniz.</span>
                                         </div>
                                     </div>
-                                    <div v-else class="app-simple-table">
-                                        <el-table :data="filteredCalls" style="width: 100%" height="400">
-                                            <el-table-column width="60">
+                                    <div v-else class="app-simple-table rm-list-body">
+                                        <el-table size="small" :data="filteredCalls" style="width: 100%" height="100%">
+                                            <el-table-column header-align="left" label="Yön" width="80">
                                                 <template slot-scope="scope">
                                                     <span class="w-36 avatar bg-light circle">
                                                         <ion-icon style="font-size:18px" name="call" class="text-muted"></ion-icon>
@@ -268,7 +300,7 @@
                                                     </span>
                                                 </template>
                                             </el-table-column>
-                                            <el-table-column label="Arayan / Aranan" min-width="140">
+                                            <el-table-column header-align="left" label="Arayan / Aranan" min-width="140">
                                                 <template slot-scope="scope">
                                                     <span style="font-size:13px; font-weight:500;">
                                                         <span v-if="scope.row.direction === 'in'">{{ scope.row.from }}</span>
@@ -283,7 +315,7 @@
                                                     </small>
                                                 </template>
                                             </el-table-column>
-                                            <el-table-column label="Kuyruk" min-width="110">
+                                            <el-table-column header-align="left" label="Kuyruk" min-width="110">
                                                 <template slot-scope="scope">
                                                     <span v-if="resolveQueue(scope.row)" class="small">
                                                         <ion-icon name="people-outline" class="mr-1 text-muted"></ion-icon>{{ resolveQueue(scope.row) }}
@@ -291,7 +323,7 @@
                                                     <span v-else class="text-muted small">—</span>
                                                 </template>
                                             </el-table-column>
-                                            <el-table-column label="Hat" min-width="110">
+                                            <el-table-column header-align="left" label="Operasyon" min-width="110">
                                                 <template slot-scope="scope">
                                                     <span v-if="resolveNumber(scope.row)" class="small">
                                                         <ion-icon name="cellular-outline" class="mr-1 text-muted"></ion-icon>{{ resolveNumber(scope.row) }}
@@ -299,7 +331,7 @@
                                                     <span v-else class="text-muted small">—</span>
                                                 </template>
                                             </el-table-column>
-                                            <el-table-column fixed="right" align="right" label="Durum" min-width="170">
+                                            <el-table-column fixed="right" header-align="left" align="right" label="Durum" min-width="170">
                                                 <template slot-scope="scope">
                                                     <span class="badge badge-md badge-pill text-dark"
                                                           :class="getCallStateBadge(scope.row.current_state)">
@@ -327,6 +359,27 @@ import VueApexCharts from 'vue-apexcharts';
 
 const CALL_CHART_COLORS = ['#3ED96A', '#3C81FA', '#FFA21D', '#FE4D62'];
 
+// Apexcharts varsayılan hover (lighten) açık grileri beyaza çekiyor.
+// Hover'ı tamamen kaldır; sadece tıklanan (active) dilim hafifçe koyulaşsın.
+const AGENT_CHART_STATES = {
+    normal: { filter: { type: 'none' } },
+    hover:  { filter: { type: 'none' } },
+    active: { allowMultipleDataPointsSelection: false, filter: { type: 'darken', value: 0.08 } },
+};
+
+const AGENT_PALETTE = {
+    // Role agregat (Gelişmiş dış halka)
+    inbound:  '#3ED96A',
+    outbound: '#3C81FA',
+    // Call state (Basit + Gelişmiş iç halka + tüm stat kartları)
+    // avail = bekliyor → kırmızı, ringing = çalışıyor → mavi, incall = çağrıda → yeşil
+    avail:   '#FE4D62',
+    ringing: '#3C81FA',
+    incall:  '#3ED96A',
+    // Sabit
+    hatta:   '#ADB5BD',
+};
+
 export default {
     components: { apexchart: VueApexCharts },
 
@@ -351,6 +404,8 @@ export default {
             statesMap:      {},
 
             globalNumberFilter: null,
+            agentChartType:      'simple',    // 'simple' | 'advanced'
+            agentChartDirection: null,        // null (all) | 'in' | 'out'
             agentFilter: { onlineOnly: false, status: null },
             callFilter:  { direction: null, state: null, numberId: null },
         };
@@ -384,53 +439,178 @@ export default {
             if (this.globalNumberFilter) {
                 active = active.filter(c => this.getCallNumberId(c) == this.globalNumberFilter);
             }
+            if (this.callFilter.direction) {
+                active = active.filter(c => c.direction === this.callFilter.direction);
+            }
             return active;
         },
 
-        // ── Agent stats kartları ────────────────────────────────────
-        outerStats() {
-            const online = this.onlineUsers;
-            const stats = [];
-            const extras = ['#8C54FF', '#00C9DB', '#F94144', '#9D4EDD', '#48CAE4', '#FFB703', '#F48C06'];
-            let eIdx = 0;
+        // ── State → Renk haritası (deterministic, statesMap'ten türer) ──
+        // Bilinen makine anahtarları (state.state) için sabit semantik renk;
+        // diğerleri için state.id sıra sayısına göre fallback paletinden seçilir.
+        // Ajanın online olup olmamasından bağımsız → renkler asla kaymaz.
+        stateColorMap() {
+            // mola/toplantı/yemek/sağlık → sarı ailesi (farklı tonlar, aynı sıcaklık)
+            const semantic = {
+                inbound:  AGENT_PALETTE.inbound,
+                outbound: AGENT_PALETTE.outbound,
+                break:    '#FFB703',  // amber
+                meeting:  '#DAA520',  // goldenrod (koyu hardal)
+                eat:      '#F4D03F',  // limon sarısı (parlak/açık)
+                healt:    '#E8A317',  // derin amber
+            };
+            const fallback = ['#9D4EDD', '#48CAE4', '#FFB703', '#F48C06', '#06B6D4', '#FF6B9D'];
+            const ids = Object.keys(this.statesMap).map(Number).sort((a, b) => a - b);
+            const map = {};
+            let idx = 0;
+            ids.forEach(id => {
+                const s = this.statesMap[id];
+                if (s.state && semantic[s.state]) {
+                    map[id] = semantic[s.state];
+                } else {
+                    map[id] = fallback[idx % fallback.length];
+                    idx++;
+                }
+            });
+            return map;
+        },
 
-            if (this.statesMap) {
-                Object.values(this.statesMap).forEach(state => {
-                    const count = online.filter(u => u.state && u.state.id === state.id).length;
-                    if (count > 0) {
-                        stats.push({ key: `state_${state.id}`, label: state.name, color: extras[eIdx++ % extras.length], count: count, icon: 'briefcase-outline' });
-                    }
+        // ── Agent state çekirdek veri seti ──────────────────────────
+        // Her ajan tek bir kovaya düşer (partition):
+        //   - inbound role × {avail, ringing, incall}
+        //   - outbound role × {avail, ringing, incall}
+        //   - diğer custom state'ler (break, meeting, ...) — call_status'tan bağımsız
+        //   - hatta-değil: online ama state yok
+        agentBuckets() {
+            const online = this.onlineUsers;
+            const isInbound  = (u) => u.state && u.state.state === 'inbound';
+            const isOutbound = (u) => u.state && u.state.state === 'outbound';
+            const isOtherCustom = (u) => u.state && u.state.id && !isInbound(u) && !isOutbound(u);
+            const isUnassigned  = (u) => !u.state || !u.state.id;
+
+            const callStates = ['avail', 'ringing', 'incall'];
+            const buckets = { inbound: {}, outbound: {} };
+            callStates.forEach(cs => {
+                buckets.inbound[cs]  = online.filter(u => isInbound(u)  && u.call_status === cs).length;
+                buckets.outbound[cs] = online.filter(u => isOutbound(u) && u.call_status === cs).length;
+            });
+
+            const otherStates = [];
+            const seen = new Set();
+            online.filter(isOtherCustom).forEach(u => {
+                if (seen.has(u.state.id)) return;
+                seen.add(u.state.id);
+                const count = online.filter(o => o.state && o.state.id === u.state.id).length;
+                otherStates.push({
+                    id: u.state.id,
+                    name: u.state.name,
+                    count,
+                    color: this.stateColorMap[u.state.id] || AGENT_PALETTE.hatta,
                 });
-            }
-            
-            const sys = online.filter(u => !u.state || !u.state.id).length;
-            if (sys > 0) {
-                stats.push({ key: 'no_task', label: 'Standart / Atanmamış', color: '#CED4DA', count: sys, icon: 'laptop-outline' });
-            }
-            return stats;
+            });
+
+            return {
+                callStates: buckets,
+                otherStates,
+                hattaDegil: online.filter(isUnassigned).length,
+                inboundTotal:  online.filter(isInbound).length,
+                outboundTotal: online.filter(isOutbound).length,
+            };
         },
 
-        innerStats() {
-            const online = this.onlineUsers;
-            const stats = [
-                { key: 'incall',  label: 'Çağrıda',  color: '#3ED96A', class: 'text-success', icon: 'call',                count: online.filter(u => u.call_status === 'incall').length },
-                { key: 'calling', label: 'Aranıyor',  color: '#9D4EDD', class: 'text-purple',  icon: 'call-outline',        count: online.filter(u => u.call_status === 'calling').length },
-                { key: 'ringing', label: 'Çalıyor',   color: '#3C81FA', class: 'text-primary', icon: 'musical-note',        count: online.filter(u => u.call_status === 'ringing').length },
-                { key: 'avail',   label: 'Hazır',     color: '#CED4DA', class: 'text-muted',   icon: 'time-outline',        count: online.filter(u => u.call_status === 'avail').length },
+        // ── Çağrı durumu stat kartları (Çağrı Durumu grubu) ─────────
+        // Direction filter aktifse ilgili sütunu gizler.
+        // Renk yön'e göre değil, call_state'e göre — tüm "Çağrıda" yeşil,
+        // tüm "Çalışıyor" mavi, tüm "Bekliyor" kırmızı.
+        callStateCards() {
+            const b = this.agentBuckets.callStates;
+            const dir = this.agentChartDirection;
+            const cards = [];
+            const meta = [
+                { cs: 'incall',  label: 'Çağrıda',   color: AGENT_PALETTE.incall  },
+                { cs: 'ringing', label: 'Çalışıyor', color: AGENT_PALETTE.ringing },
+                { cs: 'avail',   label: 'Bekliyor',  color: AGENT_PALETTE.avail   },
             ];
-            const otherCount = online.filter(u => !['incall','calling','ringing','avail'].includes(u.call_status)).length;
-            if (otherCount > 0) {
-                stats.push({ key: 'pbx_break', label: 'Mola / Diğer (PBX)', color: '#FFA21D', class: 'text-warning', icon: 'pause-circle-outline', count: otherCount });
-            }
-            return stats.filter(s => s.count > 0 || ['incall','ringing','avail'].includes(s.key));
+            meta.forEach(m => {
+                if (dir !== 'out' && b.inbound[m.cs] > 0) {
+                    cards.push({ key: `${m.cs}-in`, label: `${m.label} · Gelen`, color: m.color, count: b.inbound[m.cs] });
+                }
+                if (dir !== 'in' && b.outbound[m.cs] > 0) {
+                    cards.push({ key: `${m.cs}-out`, label: `${m.label} · Giden`, color: m.color, count: b.outbound[m.cs] });
+                }
+            });
+            return cards;
         },
 
-        agentStats() {
-            // Kartlara hem PBX durumları hem de Ana Rolleri ayrı ayrı bindirmeliyiz!
-            return [
-                ...this.innerStats,
-                ...this.outerStats.map(s => ({ ...s, class: 'text-secondary' })),
+        // ── Diğer durumlar stat kartları (break/meeting/custom + hatta-değil) ──
+        otherStateCards() {
+            const cards = [];
+            this.agentBuckets.otherStates.forEach(s => {
+                cards.push({ key: `state_${s.id}`, label: s.name, color: s.color, count: s.count });
+            });
+            if (this.agentBuckets.hattaDegil > 0) {
+                cards.push({ key: 'hatta_degil', label: 'Hatta Değil', color: AGENT_PALETTE.hatta, count: this.agentBuckets.hattaDegil });
+            }
+            return cards;
+        },
+
+        // ── BASİT GRAFİK: avail/ringing/incall (yön birleştirilmiş) + custom + hatta-değil ──
+        simpleSlices() {
+            const b = this.agentBuckets.callStates;
+            const dir = this.agentChartDirection;
+            const slices = [];
+            const csList = [
+                { cs: 'incall',  label: 'Çağrıda',   color: AGENT_PALETTE.incall  },
+                { cs: 'ringing', label: 'Çalışıyor', color: AGENT_PALETTE.ringing },
+                { cs: 'avail',   label: 'Bekliyor',  color: AGENT_PALETTE.avail   },
             ];
+            csList.forEach(m => {
+                const count = (dir !== 'out' ? b.inbound[m.cs] : 0) + (dir !== 'in' ? b.outbound[m.cs] : 0);
+                if (count > 0) slices.push({ key: m.cs, label: m.label, color: m.color, count });
+            });
+            this.agentBuckets.otherStates.forEach(s => {
+                slices.push({ key: `state_${s.id}`, label: s.name, color: s.color, count: s.count });
+            });
+            if (this.agentBuckets.hattaDegil > 0) {
+                slices.push({ key: 'hatta_degil', label: 'Hatta Değil', color: AGENT_PALETTE.hatta, count: this.agentBuckets.hattaDegil });
+            }
+            return slices;
+        },
+
+        // ── GELİŞMİŞ GRAFİK: dış halka = role aggregate, iç halka = call_state aggregate ──
+        advancedOuterSlices() {
+            const b = this.agentBuckets;
+            const dir = this.agentChartDirection;
+            const slices = [];
+            if (dir !== 'out' && b.inboundTotal > 0) {
+                slices.push({ key: 'inbound', label: 'Gelen', color: AGENT_PALETTE.inbound, count: b.inboundTotal });
+            }
+            if (dir !== 'in' && b.outboundTotal > 0) {
+                slices.push({ key: 'outbound', label: 'Giden', color: AGENT_PALETTE.outbound, count: b.outboundTotal });
+            }
+            b.otherStates.forEach(s => {
+                slices.push({ key: `state_${s.id}`, label: s.name, color: s.color, count: s.count });
+            });
+            if (b.hattaDegil > 0) {
+                slices.push({ key: 'hatta_degil', label: 'Hatta Değil', color: AGENT_PALETTE.hatta, count: b.hattaDegil });
+            }
+            return slices;
+        },
+
+        advancedInnerSlices() {
+            const b = this.agentBuckets.callStates;
+            const dir = this.agentChartDirection;
+            const slices = [];
+            const order = [
+                { cs: 'incall',  label: 'Çağrıda',   color: AGENT_PALETTE.incall  },
+                { cs: 'ringing', label: 'Çalışıyor', color: AGENT_PALETTE.ringing },
+                { cs: 'avail',   label: 'Bekliyor',  color: AGENT_PALETTE.avail   },
+            ];
+            order.forEach(m => {
+                const count = (dir !== 'out' ? b.inbound[m.cs] : 0) + (dir !== 'in' ? b.outbound[m.cs] : 0);
+                if (count > 0) slices.push({ key: m.cs, label: m.label, color: m.color, count });
+            });
+            return slices;
         },
 
         // ── Call stats kartları ─────────────────────────────────────
@@ -473,22 +653,39 @@ export default {
             let list = this.users.filter(u => {
                 if (this.globalNumberFilter && this.getAgentNumberId(u) != this.globalNumberFilter) return false;
                 if (this.agentFilter.onlineOnly && !u.is_online) return false;
-                if (!this.agentFilter.status) return true;
-                
-                if (this.agentFilter.status.startsWith('state_')) {
-                    const sId = parseInt(this.agentFilter.status.replace('state_', ''));
+
+                const status = this.agentFilter.status;
+                if (!status) return true;
+
+                // Yön + call_state (Karmaşık grafik / Çağrı Durumu kartları)
+                const dirMatch = status.match(/^(avail|ringing|incall)-(in|out)$/);
+                if (dirMatch) {
+                    const role = dirMatch[2] === 'in' ? 'inbound' : 'outbound';
+                    return u.state && u.state.state === role && u.call_status === dirMatch[1];
+                }
+
+                // Yön bağımsız call_state (Basit grafik / Gelişmiş iç halka)
+                if (['avail', 'ringing', 'incall'].includes(status)) {
+                    return u.call_status === status;
+                }
+
+                // Role agregat (Gelişmiş dış halka)
+                if (status === 'inbound' || status === 'outbound') {
+                    return u.state && u.state.state === status;
+                }
+
+                // Custom state (break, meeting, ...)
+                if (status.startsWith('state_')) {
+                    const sId = parseInt(status.replace('state_', ''));
                     return u.state && u.state.id === sId;
                 }
-                
-                if (this.agentFilter.status === 'no_task') {
+
+                // Hatta değil
+                if (status === 'hatta_degil') {
                     return !u.state || !u.state.id;
                 }
-                
-                if (this.agentFilter.status === 'pbx_break') {
-                    return !['incall','ringing','avail'].includes(u.call_status);
-                }
-                
-                return u.call_status === this.agentFilter.status;
+
+                return false;
             });
 
             // Order by status importance
@@ -519,7 +716,6 @@ export default {
 
         filteredCalls() {
             return this.activeCalls.filter(c => {
-                if (this.callFilter.direction && c.direction !== this.callFilter.direction) return false;
                 if (this.callFilter.state) {
                     const state = this.callFilter.state;
                     if (state === 'ringing') {
@@ -550,55 +746,26 @@ export default {
             return Object.values(map);
         },
 
-        // ── Agent chart ─────────────────────────────────────────────
-        outerChartSeries() { return this.outerStats.map(s => s.count); },
-        innerChartSeries() { return this.innerStats.map(s => s.count); },
-
-        outerChartOptions() {
-            const vm = this;
-            return {
-                chart: {
-                    type: 'donut',
-                    events: {
-                        dataPointSelection(event, chartContext, config) {
-                            const key = vm.outerStats[config.dataPointIndex].key;
-                            vm.agentFilter.status = vm.agentFilter.status === key ? null : key;
-                        },
-                    },
-                },
-                labels: this.outerStats.map(s => s.label),
-                colors: this.outerStats.map(s => s.color),
-                legend: { show: false },
-                plotOptions: {
-                    pie: {
-                        donut: {
-                            size: '65%',
-                            labels: { show: false },
-                        },
-                        expandOnClick: false,
-                    },
-                },
-                dataLabels: { enabled: false },
-                tooltip: { y: { formatter: val => val + ' temsilci' } },
-            };
-        },
-
-        innerChartOptions() {
+        // ── Agent chart series & options ────────────────────────────
+        singleChartSlices() { return this.simpleSlices; },
+        singleChartSeries() { return this.singleChartSlices.map(s => s.count); },
+        singleChartOptions() {
             const vm = this;
             const total = this.onlineUsers.length;
             return {
                 chart: {
                     type: 'donut',
                     events: {
-                        dataPointSelection(event, chartContext, config) {
-                            const key = vm.innerStats[config.dataPointIndex].key;
+                        dataPointSelection(_event, _ctx, config) {
+                            const key = vm.singleChartSlices[config.dataPointIndex].key;
                             vm.agentFilter.status = vm.agentFilter.status === key ? null : key;
                         },
                     },
                 },
-                labels: this.innerStats.map(s => s.label),
-                colors: this.innerStats.map(s => s.color),
+                labels: this.singleChartSlices.map(s => s.label),
+                colors: this.singleChartSlices.map(s => s.color),
                 legend: { show: false },
+                states: AGENT_CHART_STATES,
                 plotOptions: {
                     pie: {
                         donut: {
@@ -616,6 +783,72 @@ export default {
                     },
                 },
                 dataLabels: { enabled: false },
+                stroke: { width: 2, colors: ['#fff'] },
+                tooltip: { y: { formatter: val => val + ' temsilci' } },
+            };
+        },
+
+        advancedOuterSeries() { return this.advancedOuterSlices.map(s => s.count); },
+        advancedOuterOptions() {
+            const vm = this;
+            return {
+                chart: {
+                    type: 'donut',
+                    events: {
+                        dataPointSelection(_event, _ctx, config) {
+                            const key = vm.advancedOuterSlices[config.dataPointIndex].key;
+                            vm.agentFilter.status = vm.agentFilter.status === key ? null : key;
+                        },
+                    },
+                },
+                labels: this.advancedOuterSlices.map(s => s.label),
+                colors: this.advancedOuterSlices.map(s => s.color),
+                legend: { show: false },
+                states: AGENT_CHART_STATES,
+                plotOptions: {
+                    pie: {
+                        donut: { size: '73%', labels: { show: false } },
+                        expandOnClick: false,
+                    },
+                },
+                dataLabels: { enabled: false },
+                stroke: { width: 2, colors: ['#fff'] },
+                tooltip: { y: { formatter: val => val + ' temsilci' } },
+            };
+        },
+
+        advancedInnerSeries() { return this.advancedInnerSlices.map(s => s.count); },
+        advancedInnerOptions() {
+            const vm = this;
+            const total = this.onlineUsers.length;
+            return {
+                chart: {
+                    type: 'donut',
+                    events: {
+                        dataPointSelection(_event, _ctx, config) {
+                            const key = vm.advancedInnerSlices[config.dataPointIndex].key;
+                            vm.agentFilter.status = vm.agentFilter.status === key ? null : key;
+                        },
+                    },
+                },
+                labels: this.advancedInnerSlices.map(s => s.label),
+                colors: this.advancedInnerSlices.map(s => s.color),
+                legend: { show: false },
+                states: AGENT_CHART_STATES,
+                plotOptions: {
+                    pie: {
+                        donut: {
+                            size: '58%',
+                            labels: {
+                                show: true,
+                                total: { show: true, label: 'Çevrimiçi', formatter: () => total },
+                            },
+                        },
+                        expandOnClick: false,
+                    },
+                },
+                dataLabels: { enabled: false },
+                stroke: { width: 2, colors: ['#fff'] },
                 tooltip: { y: { formatter: val => val + ' temsilci' } },
             };
         },
@@ -644,10 +877,12 @@ export default {
                 },
                 labels: this.callStats.map(s => s.label),
                 colors: CALL_CHART_COLORS,
-                legend: { position: 'bottom' },
+                legend: { show: false },
+                states: AGENT_CHART_STATES,
                 plotOptions: {
                     pie: {
                         donut: {
+                            size: '70%',
                             labels: {
                                 show: true,
                                 total: {
@@ -657,12 +892,12 @@ export default {
                                 },
                             },
                         },
+                        expandOnClick: false,
                     },
                 },
-                dataLabels: { enabled: true },
-                tooltip: {
-                    y: { formatter: val => val + ' çağrı' },
-                },
+                dataLabels: { enabled: false },
+                stroke: { width: 2, colors: ['#fff'] },
+                tooltip: { y: { formatter: val => val + ' çağrı' } },
             };
         },
     },
@@ -734,7 +969,11 @@ export default {
                         voip_since:  voip ? voip.timestamp     : null,
                         user:  { id: u.id, name: u.name, surname: u.surname, email: u.email },
                         queue: (api && api.queue_id) ? { id: api.queue_id, name: api.queue_name || '' } : null,
-                        state: (api && api.state_id) ? { id: api.state_id, name: statesMap[api.state_id] ? statesMap[api.state_id].name : (api.state_name || '') } : null,
+                        state: (api && api.state_id) ? {
+                            id:    api.state_id,
+                            name:  statesMap[api.state_id] ? statesMap[api.state_id].name  : (api.state_name || ''),
+                            state: statesMap[api.state_id] ? statesMap[api.state_id].state : (api.state_key  || null),
+                        } : null,
                     };
                 });
 
@@ -789,8 +1028,9 @@ export default {
                     if (data.partial.state_id   !== undefined) {
                         const sId = data.partial.state_id;
                         this.$set(user, 'state', sId === null ? null : {
-                            id:   sId,
-                            name: this.statesMap[sId] ? this.statesMap[sId].name : (data.partial.state_name || (user.state ? user.state.name : '')),
+                            id:    sId,
+                            name:  this.statesMap[sId] ? this.statesMap[sId].name  : (data.partial.state_name || (user.state ? user.state.name  : '')),
+                            state: this.statesMap[sId] ? this.statesMap[sId].state : (data.partial.state_key  || (user.state ? user.state.state : null)),
                         });
                     }
                     if (data.partial.queue_id !== undefined) {
@@ -911,38 +1151,40 @@ export default {
             return null;
         },
 
-        getAgentCallStatusLabel(status) {
+        getAgentCallStatusLabel(row) {
+            if (!row.is_online) return 'Çevrimdışı';
             const map = {
                 incall:  'Çağrıda',
                 calling: 'Aranıyor',
-                ringing: 'Çalıyor',
-                avail:   'Beklemede',
+                ringing: 'Çalışıyor',
+                avail:   'Bekliyor',
                 break:   'Mola',
             };
-            return map[status] || 'Hatta Değil';
+            return map[row.call_status] || 'Hatta Değil';
         },
 
-        getAgentCallStatusBadge(status) {
+        getAgentCallStatusBadge(row) {
+            if (!row.is_online) return 'bg-light text-muted';
             const map = {
                 incall:  'bg-success-lt text-success',
                 calling: 'bg-purple-lt text-purple',
                 ringing: 'bg-primary-lt text-primary',
-                avail:   'bg-light text-muted',
+                avail:   'bg-danger-lt text-danger',
                 break:   'bg-warning-lt text-warning',
             };
-            return map[status] || 'badge-light text-muted';
+            return map[row.call_status] || 'badge-light text-muted';
         },
 
         getAgentStatusColor(row) {
             if (!row.is_online) return 'bg-light';
             const map = {
-                incall: 'bg-success',
+                incall:  'bg-success',
                 ringing: 'bg-primary',
                 avail:   'bg-danger',
                 break:   'bg-warning',
             };
             if (row.call_status && map[row.call_status]) return map[row.call_status];
-            if (row.state && row.state.name) return 'bg-danger'; // avail
+            if (row.state && row.state.name) return 'bg-danger';
             return 'bg-secondary';
         },
 
@@ -998,7 +1240,42 @@ export default {
     }
 }
 
-/* ── Çift Halka Grafik ───────────────────────────────────────── */
+/* ── Liste Kartı: card-body'yi flex column yap, tablo kalan alanı doldursun ── */
+.rm-card-fill {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+.rm-card-fill > .card {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+.rm-card-fill > .card > .card-body {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+.rm-card-fill .rm-list-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+.rm-card-fill .rm-list-body > .el-table {
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+/* ── Grafik Filtre Çubuğu ────────────────────────────────────── */
+.rm-chart-filters {
+    gap: 6px;
+    .el-radio-group { margin: 2px 0; }
+}
+
+/* ── Halka Grafik ────────────────────────────────────────────── */
 .rm-chart-wrap {
     position: relative;
     display: flex;
