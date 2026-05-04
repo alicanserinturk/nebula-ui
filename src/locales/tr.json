@@ -115,14 +115,6 @@
         "description": ""
       },
       "real_time": {
-        "title": "Canlı İzleme",
-        "description": "Canlı izleme ekranını açar."
-      },
-      "real_time_v2": {
-        "title": "Canlı İzleme v2",
-        "description": ""
-      },
-      "real_time_monitor": {
         "title": "Yönetici İzleme",
         "description": ""
       },

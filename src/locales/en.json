@@ -103,14 +103,6 @@
         "description": ""
       },
       "real_time": {
-        "title": "Real Time",
-        "description": ""
-      },
-      "real_time_v2": {
-        "title": "Real Time v2",
-        "description": ""
-      },
-      "real_time_monitor": {
         "title": "Manager Monitor",
         "description": ""
       },

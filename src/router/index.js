@@ -28,21 +28,10 @@ const routes = [
                 component: () => import("../views/board/Refresher.vue"),
             },
             {
-                path: 'realtime',
-                component: () => import("../views/board/Realtime.vue"),
-                meta: modules.real_time,
-            },
-            {
                 path: 'realtime-monitor',
                 component: () => import("../views/board/RealtimeMonitor.vue"),
                 meta: modules.real_time,
             },
-            {
-                path: 'realtime2',
-                component: () => import("../views/board/Realtime2.vue"),
-                meta: modules.real_time,
-            },
-
             {
                 path: 'messages',
                 component: () => import("../views/board/Messages.vue"),

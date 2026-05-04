@@ -106,11 +106,6 @@ export const modules = {
         key: 'real_time',
         icon: 'pie-chart-outline',
     },
-    'real_time_v2': {
-        path: '',
-        key: 'real_time_v2',
-        icon: 'pulse-outline',
-    },
     'announcement': {
         path: '',
         key: 'announcement',
