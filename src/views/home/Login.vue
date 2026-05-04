@@ -208,7 +208,8 @@ export default {
     },
     setCache() {
       if (this.form.email !== '' && this.form.password !== '') {
-        if (process.env.VUE_APP_ENV !== 'production') {
+        const recaptchaEnabled = process.env.VUE_APP_GOOGLE_RECAPTCHA_ENABLED !== 'false';
+        if (process.env.VUE_APP_ENV !== 'production' || !recaptchaEnabled) {
           this.form.g_recaptcha_response = 'local-env';
           this.submit();
           return;

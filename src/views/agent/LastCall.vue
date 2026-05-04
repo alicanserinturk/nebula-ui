@@ -2,6 +2,7 @@
 	<app-module>
 		<app-module-header></app-module-header>
 		<app-module-body>
+			<app-information :errors="errors"></app-information>
 			<app-table
 				downloadable
 				editable
@@ -61,7 +62,7 @@
 									><i class="el-icon-right ml-1"></i> Giden Arama</span
 								>
 								<small class="sub-item text-muted d-block">{{
-									scope.row.number.name
+									scope.row.number ? scope.row.number.name : ''
 								}}</small>
 							</template>
 							<template v-else>
@@ -69,8 +70,8 @@
 									><i class="el-icon-back mr-1"></i> Gelen Arama</span
 								>
 								<small class="sub-item text-muted d-block"
-									>{{ scope.row.number.name }}
-									<span v-if="scope.row.number.name">
+									>{{ scope.row.number ? scope.row.number.name : '' }}
+									<span v-if="scope.row.number && scope.row.number.name && scope.row.queue">
 										- {{ scope.row.queue.name }}</span
 									></small
 								>
@@ -81,7 +82,7 @@
 						<template slot-scope="scope">
 							<div
 								class="d-inline-block"
-								v-if="scope.row.crm.result_code || scope.row.crm.comment"
+								v-if="scope.row.crm.note_id"
 							>
 								<span
 									class="badge badge-sm badge-light"
@@ -91,7 +92,7 @@
 								</span>
 								<span
 									class="badge badge-sm badge-warning"
-									v-else="scope.row.crm.result_code"
+									v-else
 								>
 									Sonuçlandırılmadı
 								</span>
@@ -99,7 +100,7 @@
 									<span v-if="scope.row.crm.comment">{{
 										scope.row.crm.comment
 									}}</span>
-									<span v-else>Değerlendirme yapılmadı</span>
+									<span v-else>Yorum girilmedi</span>
 								</span>
 							</div>
 						</template>
@@ -108,15 +109,15 @@
 						<template slot-scope="scope">
 							<button
 								class="btn btn-white btn-sm btn-rounded"
-								v-if="scope.row.crm.result_code || scope.row.crm.comment"
-								@click="showCrm(scope.row.crm.id)"
+								v-if="scope.row.crm.note_id"
+								@click="showCrm(scope.row)"
 							>
-								<i class="el-icon-circle-check"></i> Değerlendirmeyi İncele
+								<i class="el-icon-view"></i> Görüntüle / Düzenle
 							</button>
 							<button
 								class="btn btn-white btn-sm btn-rounded text-primary"
 								v-else
-								@click="showCrm(scope.row.crm.id)"
+								@click="showCrm(scope.row)"
 							>
 								<i class="el-icon-chat-dot-round"></i> Görüşmeyi Değerlendir
 							</button>
@@ -125,6 +126,15 @@
 					<el-table-column align="right" width="82px">
 						<template slot-scope="scope">
 							<button
+								v-if="calledIds.includes(scope.row.id)"
+								:disabled="true"
+								class="btn btn-white text-primary btn-sm btn-rounded"
+							>
+								<i class="el-icon-loading"></i>
+								Aranıyor
+							</button>
+							<button
+								v-else
 								@click="startCall(scope.row)"
 								class="btn btn-primary btn-sm btn-rounded"
 							>
@@ -144,17 +154,18 @@
 				</template>
 			</app-table>
 		</app-module-body>
-		<!--<app-crm v-if="crm.visible" :visible.sync="crm.visible" :id="crm.id"></app-crm>-->
 		<Phone
 			v-if="crm.visible"
 			:visible.sync="crm.visible"
-			:key="crm.id"
-			:call-id="crm.id"
+			:key="crm.callId"
+			:call-id="crm.callId"
+			:phone="crm.phone"
+			:number="crm.number"
+			:queue="crm.queue"
 		></Phone>
 	</app-module>
 </template>
 <script>
-import EventBus from "@/utils/EventBus";
 import Phone from "./Phone";
 import moment from "moment";
 
@@ -164,8 +175,13 @@ export default {
 	},
 	data() {
 		return {
+			errors: null,
+			calledIds: [],
 			crm: {
-				id: null,
+				callId: null,
+				phone: null,
+				number: null,
+				queue: null,
 				visible: false,
 			},
 			filters: {
@@ -202,12 +218,36 @@ export default {
 	},
 	created() {},
 	methods: {
-		showCrm(crmID) {
-			this.crm.id = crmID;
+		showCrm(row) {
+			// Phone modal crm/init endpoint'inden mevcut crm_note'u asterisk_id ile çeker;
+			// forms/contact yüklemek için phone (encrypted) ve number (string) gerekli.
+			this.crm.callId = row.asterisk_id;
+			this.crm.phone  = row.contact ? row.contact.phone : null;
+			this.crm.number = row.number ? row.number.number : null;
+			this.crm.queue  = row.queue ? row.queue.key : null;
 			this.crm.visible = true;
 		},
-		startCall(item) {
-			EventBus.$emit("sipStartCall", item.contact.calling_number);
+		startCall(row) {
+			// Server-side click-to-call: state, sip, blacklist kontrolleri ve AMI
+			// originate backend'de yapılır. Task ekranı ile aynı yapı.
+			if (this.calledIds.includes(row.id)) return;
+			this.calledIds.push(row.id);
+			this.$api.get(
+				"agent/last-calls/call/" + row.id,
+				{},
+				() => {
+					this.errors = null;
+					setTimeout(() => {
+						const idx = this.calledIds.indexOf(row.id);
+						if (idx > -1) this.calledIds.splice(idx, 1);
+					}, 1000);
+				},
+				(code, errors) => {
+					this.errors = errors;
+					const idx = this.calledIds.indexOf(row.id);
+					if (idx > -1) this.calledIds.splice(idx, 1);
+				}
+			);
 		},
 	},
 };
