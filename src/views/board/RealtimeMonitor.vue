@@ -10,40 +10,33 @@
                     <div v-else>
 
                         <!-- ── ÜST SEKMELER (GÖRÜNÜM KONTROLÜ) ── -->
-                        <div class="app-table pb-0 mb-3" style="min-height: auto;">
-                            <div class="app-table-toolbar d-flex justify-content-between align-items-center app-table-filter-bar w-100">
-                                <div class="col-auto">
-                                    <div class="app-module-toolbar bg-white pb-0 pt-0 position-relative">
-                                        <div class="col-md-auto">
-                                            <el-radio-group v-model="activeTab" size="mini">
-                                                <el-radio-button label="all">Tümü</el-radio-button>
-                                                <el-radio-button label="callsOnly">Çağrı Trafiği</el-radio-button>
-                                                <el-radio-button label="agentsOnly">Müşteri Temsilcisi</el-radio-button>
-                                                <el-radio-button label="chartsOnly">Birleşik Grafik</el-radio-button>
-                                                <el-radio-button label="listsOnly">Birleşik Liste</el-radio-button>
-                                            </el-radio-group>
-                                        </div>
-                                    </div>
+                        <div class="row row-sm app-table-filter-bar mb-3 align-items-center justify-content-between">
+                            <div class="col-auto">
+                                <div class="app-module-toolbar bg-white pb-0 pt-0 position-relative">
+                                    <el-radio-group v-model="activeTab" size="mini">
+                                        <el-radio-button label="all">Tümü</el-radio-button>
+                                        <el-radio-button label="callsOnly">Çağrı Trafiği</el-radio-button>
+                                        <el-radio-button label="agentsOnly">Müşteri Temsilcisi</el-radio-button>
+                                        <el-radio-button label="chartsOnly">Birleşik Grafik</el-radio-button>
+                                        <el-radio-button label="listsOnly">Birleşik Liste</el-radio-button>
+                                    </el-radio-group>
                                 </div>
-                                <div class="col-auto">
-                                    <el-select
-                                        v-model="globalNumberFilter"
-                                        size="mini"
-                                        placeholder="Tüm Hatlar"
-                                        clearable
-                                        class="rm-number-select">
-                                        <template slot="prefix">
-                                            <ion-icon name="cellular-outline" class="rm-number-select__icon"></ion-icon>
-                                        </template>
-                                        <el-option :value="null" label="Tüm Hatlar"></el-option>
-                                        <el-option
-                                            v-for="num in numbers"
-                                            :key="num.id"
-                                            :value="num.id"
-                                            :label="num.name">
-                                        </el-option>
-                                    </el-select>
-                                </div>
+                            </div>
+                            <div class="col-auto d-flex align-items-center">
+                                <strong class="text-label text-muted mr-2 text-nowrap">Operasyon</strong>
+                                <el-select
+                                    v-model="globalNumberFilter"
+                                    clearable
+                                    size="medium"
+                                    placeholder="Tüm Operasyonlar"
+                                    style="width: 220px;">
+                                    <el-option
+                                        v-for="num in numbers"
+                                        :key="num.id"
+                                        :value="num.id"
+                                        :label="num.name">
+                                    </el-option>
+                                </el-select>
                             </div>
                         </div>
 
@@ -379,7 +372,11 @@ export default {
 
         // ── Online kullanıcılar ─────────────────────────────────────
         onlineUsers() {
-            return this.users.filter(u => u.is_online);
+            let online = this.users.filter(u => u.is_online);
+            if (this.globalNumberFilter) {
+                online = online.filter(u => this.getAgentNumberId(u) == this.globalNumberFilter);
+            }
+            return online;
         },
 
         activeCalls() {
@@ -474,6 +471,7 @@ export default {
         // ── Filtreli tablolar ───────────────────────────────────────
         filteredAgents() {
             let list = this.users.filter(u => {
+                if (this.globalNumberFilter && this.getAgentNumberId(u) != this.globalNumberFilter) return false;
                 if (this.agentFilter.onlineOnly && !u.is_online) return false;
                 if (!this.agentFilter.status) return true;
                 
@@ -891,6 +889,16 @@ export default {
             return null;
         },
 
+        getAgentNumberId(agent) {
+            if (agent.current_number) {
+                if (this.numbersDigitsMap[agent.current_number]) return this.numbersDigitsMap[agent.current_number].id;
+                if (this.numbersNameMap[agent.current_number])   return this.numbersNameMap[agent.current_number].id;
+            }
+            const call = this.getAgentActiveCall(agent);
+            if (call) return this.getCallNumberId(call);
+            return null;
+        },
+
         resolveQueue(call) {
             // ORM'den gelen çağrı (eski format)
             if (call.queue && typeof call.queue === 'object' && call.queue.name) return call.queue.name;
@@ -988,26 +996,6 @@ export default {
         &:first-child { padding-left: 0.75rem; }
         &:last-child  { padding-right: 0.75rem; }
     }
-}
-
-/* ── Hat Filtre Select (tab görünümüne uyumlu) ───────────────── */
-.rm-number-select {
-    width: 160px;
-    .el-input__inner {
-        border-radius: 4px;
-        font-size: 12px;
-        padding-left: 28px;
-    }
-    .el-input__prefix {
-        display: flex;
-        align-items: center;
-        left: 8px;
-    }
-}
-.rm-number-select__icon {
-    font-size: 13px;
-    color: #606266;
-    margin-top: 1px;
 }
 
 /* ── Çift Halka Grafik ───────────────────────────────────────── */
