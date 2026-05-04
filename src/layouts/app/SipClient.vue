@@ -727,9 +727,14 @@ export default {
 					this.client.status = true;
 					this.client.states = this.currentUser.states;
 					this.client.numbers = this.currentUser.numbers;
-					this.changeState(this.currentUser.settings.sip.default_state, () => {
+					const defaultStateId = this.currentUser.settings.sip.default_state;
+					if (defaultStateId) {
+						this.changeState(defaultStateId, () => {
+							this.connect();
+						});
+					} else {
 						this.connect();
-					});
+					}
 					// Others
 					successCallback();
 				},
