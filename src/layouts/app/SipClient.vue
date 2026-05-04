@@ -65,13 +65,18 @@
 				<div class="col-auto">
 					<div class="dial-info">
 						<el-dropdown
+							ref="stateDropdown"
 							placement="top"
 							trigger="click"
 							size="medium"
 							@command="changeState"
 						>
-							<span class="skill pointer" style="font-size:13px;">
-								{{ client.state.name }}
+							<span
+								class="skill pointer"
+								style="font-size:13px;"
+								:class="{ 'text-warning font-weight-bold': !client.state.id }"
+							>
+								{{ client.state.name || 'Durum seçin' }}
 								<i class="text-muted el-icon-arrow-down"></i>
 							</span>
 							<el-dropdown-menu slot="dropdown">
@@ -966,6 +971,16 @@ export default {
 				self.listenEvents();
 				self.log("sip-registered");
 				self.clearLoading();
+				// Default state yoksa kullanıcıyı state seçmeye yönlendirmek için
+				// dropdown'u otomatik aç (UX: boş label yerine açık liste).
+				if (!self.client.state || !self.client.state.id) {
+					self.$nextTick(() => {
+						const dd = self.$refs.stateDropdown;
+						if (dd && typeof dd.show === 'function') {
+							dd.show();
+						}
+					});
+				}
 			});
 			this.sip.phone.on("disconnected", function(e) {
 				self.log("sip-disconnected");

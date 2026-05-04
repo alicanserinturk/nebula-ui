@@ -11,7 +11,9 @@ module.exports = {
 
     devServer: {
         host: '0.0.0.0',
-        public: '127.0.0.1:8080',
+        // Container içinde 8080, host'a 3001 olarak publish edilir (docker-compose.yml).
+        // vue-cli'nin "App running at" çıktısı ve HMR socket'i bu adresi kullanır.
+        public: '127.0.0.1:3001',
         clientLogLevel: 'warning',
         hot: true,
         contentBase: 'dist',
