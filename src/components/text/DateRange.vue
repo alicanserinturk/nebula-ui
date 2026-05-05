@@ -39,11 +39,15 @@ export default {
         return false;
       }
 
-      let startDate = new Date(this.startDate);
-      let endDate = new Date(this.endDate);
-      let range = (endDate - startDate) / 1000;
+      const range = Math.max(0, Math.floor((new Date(this.endDate) - new Date(this.startDate)) / 1000));
+      const hours   = Math.floor(range / 3600);
+      const minutes = Math.floor((range % 3600) / 60);
+      const seconds = range % 60;
+      const pad = n => ('0' + n).slice(-2);
 
-      return ("0" + Math.floor(range / 60)).slice(-2) + ':' + ("0" + (range % 60)).slice(-2);
+      return hours > 0
+          ? `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
+          : `${pad(minutes)}:${pad(seconds)}`;
     }
   }
 }

@@ -972,6 +972,7 @@ export default {
                         call_status:    api ? (api.call_status    || null) : null,
                         started_at:     api ? (api.started_at     || null) : null,
                         current_number: api ? (api.current_number || null) : null,
+                        current_queue:  api ? (api.current_queue  || null) : null,
                         user:  { id: u.id, name: u.name, surname: u.surname, email: u.email },
                         queue: (api && api.queue_id) ? { id: api.queue_id, name: api.queue_name || '' } : null,
                         state: (api && api.state_id) ? {
@@ -1022,7 +1023,8 @@ export default {
                 if (data.sip && data.current_state) {
                     this.$set(user, 'call_status', data.current_state);
                     if (data.timestamp) this.$set(user, 'started_at', data.timestamp);
-                    if (data.number) this.$set(user, 'current_number', data.number);
+                    this.$set(user, 'current_number', data.number || null);
+                    this.$set(user, 'current_queue',  data.queue  || null);
                     return; // event işlendi
                 }
 
