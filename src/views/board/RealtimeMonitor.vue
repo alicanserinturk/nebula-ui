@@ -955,25 +955,23 @@ export default {
                 this.statesMap        = statesMap;
 
                 // ── api_server ajan durumları: user_id → state hash ──
+                // call_status / started_at / current_number socket-server tarafından
+                // voip agent_state event'leri tüketilirken bu hash'e yazılıyor.
+                // Tek kaynak: api_agent_states.
                 const apiAgentMap = {};
                 (d.api_agent_states || []).forEach(s => { apiAgentMap[s.user_id] = s; });
 
-                // ── voip_server ajan durumları: sip → state ──────────
-                const voipAgentMap = d.voip_agent_states || {};   // { "1001": {sip, current_state, timestamp} }
-
                 // ── Kullanıcıları birleştir ───────────────────────────
                 this.users = (d.users || []).map(u => {
-                    const api  = apiAgentMap[u.id]         || null;
-                    const voip = u.sip ? (voipAgentMap[u.sip] || null) : null;
+                    const api = apiAgentMap[u.id] || null;
 
                     return {
-                        id:          u.id,
-                        sip:         u.sip,
-                        is_online:   api ? (api.is_online == '1' || api.is_online === true) : false,
-                        call_status: voip && voip.current_state ? voip.current_state : (api ? (api.call_status  || null) : null),
-                        started_at:  voip && voip.timestamp ? voip.timestamp : (api ? (api.started_at   || null) : null),
-                        voip_state:  voip ? voip.current_state : null,   // avail | ringing | incall
-                        voip_since:  voip ? voip.timestamp     : null,
+                        id:             u.id,
+                        sip:            u.sip,
+                        is_online:      api ? (api.is_online == '1' || api.is_online === true) : false,
+                        call_status:    api ? (api.call_status    || null) : null,
+                        started_at:     api ? (api.started_at     || null) : null,
+                        current_number: api ? (api.current_number || null) : null,
                         user:  { id: u.id, name: u.name, surname: u.surname, email: u.email },
                         queue: (api && api.queue_id) ? { id: api.queue_id, name: api.queue_name || '' } : null,
                         state: (api && api.state_id) ? {
