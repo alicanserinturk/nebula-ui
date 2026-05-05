@@ -999,9 +999,10 @@ export default {
 			this.sip.phone.on("registrationFailed", function(e) {
 				self.log("sip-registration-failed");
 			});
-			this.sip.phone.on("registrationExpiring", function(e) {
-				self.log("sip-registration-expiring");
-			});
+			// "registrationExpiring" listener KASITLI eklenmedi.
+			// JsSIP otomatik re-register'ı yalnızca bu event'e listener YOKKEN yapar.
+			// Listener eklenirse sorumluluk uygulamaya geçer ve manuel register()
+			// çağırılması gerekir; aksi halde registration süresi dolar ve contact silinir.
 			this.sip.phone.on("unregistered", function(e) {
 				self.log("sip-unregistered");
 			});
