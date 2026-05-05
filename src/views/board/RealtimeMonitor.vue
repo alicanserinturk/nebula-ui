@@ -397,6 +397,7 @@ export default {
 
             // Lookup maps
             queuesMap:      {},
+            queuesKeyMap:   {},
             queuesNameMap:  {},
             numbersMap:     {},
             numbersNameMap: {},
@@ -926,12 +927,17 @@ export default {
 
                 // ── Lookup map'leri ──────────────────────────────────
                 const queuesMap      = {};
+                const queuesKeyMap   = {};
                 const queuesNameMap  = {};
                 const numbersMap     = {};
                 const numbersNameMap = {};
                 const numbersDigitsMap = {};
                 const statesMap      = {};
-                d.queues.forEach(q  => { queuesMap[q.id] = q; queuesNameMap[q.name] = q; });
+                d.queues.forEach(q  => {
+                    queuesMap[q.id] = q;
+                    if (q.key)  queuesKeyMap[q.key] = q;
+                    if (q.name) queuesNameMap[q.name] = q;
+                });
                 d.numbers.forEach(n => {
                     numbersMap[n.id] = n;
                     numbersNameMap[n.name] = n;
@@ -941,6 +947,7 @@ export default {
 
                 this.numbers          = d.numbers || [];
                 this.queuesMap        = queuesMap;
+                this.queuesKeyMap     = queuesKeyMap;
                 this.queuesNameMap    = queuesNameMap;
                 this.numbersMap       = numbersMap;
                 this.numbersNameMap   = numbersNameMap;
@@ -1144,7 +1151,10 @@ export default {
             if (call.queue && typeof call.queue === 'object' && call.queue.name) return call.queue.name;
             // ID üzerinden lookup
             if (call.queue && this.queuesMap[call.queue]) return this.queuesMap[call.queue].name;
-            // İsim üzerinden lookup (voip_server Asterisk kuyruk adıyla yazar)
+            // Asterisk key üzerinden lookup (voip_server Asterisk queue key'iyle yazar:
+            // örn. "10000000cosmos_varsayilan" → DB'deki Queue.key alanı)
+            if (call.queue && this.queuesKeyMap[call.queue]) return this.queuesKeyMap[call.queue].name;
+            // İsim üzerinden lookup (legacy: bazı yerlerde Asterisk queue adı = name olabilir)
             if (call.queue && this.queuesNameMap[call.queue]) return this.queuesNameMap[call.queue].name;
             // Fallback: ham değeri göster
             if (call.queue && typeof call.queue === 'string') return call.queue;
