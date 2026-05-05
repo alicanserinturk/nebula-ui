@@ -249,12 +249,6 @@
 								size="medium"
 							></el-input>
 						</app-form-row>
-						<app-form-row
-							label="Müşteri Numaralarını Gizle"
-							description="Karşılanan çağrılarda müşteri numarası temsilci tarafından görülemez."
-						>
-							<el-switch v-model="form.hide_number"></el-switch>
-						</app-form-row>
 						<el-divider
 							><ion-icon name="calendar-outline"></ion-icon>
 							<small class="font-weight-500">Aktif Günler</small></el-divider
@@ -378,7 +372,6 @@ export default {
 				dialable: false,
 				name: "",
 				description: "",
-				hide_number: false,
 				opening: {
 					sound: {
 						id: null,

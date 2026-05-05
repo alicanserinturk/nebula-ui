@@ -39,13 +39,6 @@
 							label="Yönlendirme"
 							>{{ form.application_name }}</app-label
 						>
-						<app-label icon="el-icon-view" label="Numarayı Gizle">
-							<span v-if="form.hide_number"
-								>Bu numaraya gelen çağrılar gizleniyor.</span
-							>
-							<span v-else>Pasif</span>
-						</app-label>
-
 						<app-label label="Aktif Günler">
 							<template v-for="(day, index) in form.available.times">
 								<div class="row row-sm mb-3" v-if="day.length > 0">
@@ -263,7 +256,6 @@ export default {
 			form: {
 				name: "",
 				description: "",
-				hide_number: false,
 				opening: {
 					sound: {
 						id: null,
