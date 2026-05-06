@@ -166,7 +166,10 @@
                                             </el-table-column>
                                             <el-table-column label="Kuyruk" min-width="120">
                                                 <template slot-scope="scope">
-                                                    <span v-if="scope.row.queue && scope.row.queue.name" class="small">
+                                                    <span v-if="resolveAgentQueue(scope.row)" class="small">
+                                                        {{ resolveAgentQueue(scope.row) }}
+                                                    </span>
+                                                    <span v-else-if="scope.row.queue && scope.row.queue.name" class="small text-muted">
                                                         {{ scope.row.queue.name }}
                                                     </span>
                                                     <span v-else class="text-muted small">—</span>
@@ -1159,6 +1162,16 @@ export default {
             // Fallback: ham değeri göster
             if (call.queue && typeof call.queue === 'string') return call.queue;
             return null;
+        },
+
+        resolveAgentQueue(agent) {
+            // agent.current_queue voip agent_state event'inden gelir (Asterisk queue key)
+            const q = agent && agent.current_queue;
+            if (!q) return null;
+            if (this.queuesKeyMap[q])  return this.queuesKeyMap[q].name;
+            if (this.queuesMap[q])     return this.queuesMap[q].name;
+            if (this.queuesNameMap[q]) return this.queuesNameMap[q].name;
+            return typeof q === 'string' ? q : null;
         },
 
         getAgentCallStatusLabel(row) {
