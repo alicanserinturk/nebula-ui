@@ -545,9 +545,6 @@ export default {
 	},
 	computed: {
 		...mapGetters(["currentUser"]),
-		apiEndpoint: () => {
-			return process.env.VUE_APP_API_ENDPOINT;
-		},
 		paginatedFiles() {
 			const start = (this.filesPage - 1) * this.filesPageSize;
 			return (this.form.files || []).slice(start, start + this.filesPageSize);
@@ -594,11 +591,6 @@ export default {
 				[this.counts.success],
 			];
 		},
-		fileUploaded() {
-			this.fileUpload = false;
-			this.errors = null;
-			this.reloadFiles();
-		},
 		reloadFiles() {
 			this.$api.get(
 				"operation/calling-lists/" + this.form.id,
@@ -609,9 +601,6 @@ export default {
 					this.setCounts();
 				}
 			);
-		},
-		fileError(e) {
-			this.errors = JSON.parse(e.toString().split("Error:")[1]).errors;
 		},
 		filterDays(days) {
 			if (!Array.isArray(days) || days.length === 0) return "";
