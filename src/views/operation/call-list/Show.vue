@@ -129,54 +129,53 @@
 							</button>
 						</template>
 						<template v-if="fileUpload">
-							<small class="mb-2 d-block">Dikkat Etmeniz Gerekenler</small>
-							<ul class="list">
-								<li class="list-item">
-									Dosya formatı CSV olmalı ve dosya boyutu 2Mb altında
-									olmalıdır.
+							<small class="mb-3 d-block text-muted">
+								<i class="el-icon-info-circle"></i> Dikkat Etmeniz Gerekenler
+							</small>
+							<ul class="list-tips mb-3">
+								<li>
+									<i class="el-icon-document text-primary mr-2"></i>
+									<span>
+										<strong>CSV</strong>, <strong>XLS</strong> veya
+										<strong>XLSX</strong> formatında, 2MB altında olmalıdır.
+									</span>
 								</li>
-								<li class="list-item">
-									CSV formatı ayırıcı belirteç olarak noktalı virgül (;)
-									kullanıyor olmalıdır.
+								<li>
+									<i class="el-icon-files text-primary mr-2"></i>
+									<span>
+										Birden fazla sayfa varsa <strong>sadece ilk sayfa</strong>
+										dikkate alınır.
+									</span>
 								</li>
-								<li class="list-item">
-									A,B,C sütunları dışındaki alanlar dikkate alınmaz.
+								<li>
+									<i class="el-icon-magic-stick text-primary mr-2"></i>
+									<span>
+										Dosyayı seçtikten sonra açılacak ekranda
+										<strong>hangi kolonun hangi alana</strong> karşılık geldiğini
+										seçeceksiniz.
+									</span>
 								</li>
-								<li class="list-item">
-									A : Ad, B : Soyad, C : telefon numarası şeklinde yerleşmek
-									zorundadır.
-								</li>
-								<li class="list-item">
-									Ad, soyad veya her ikisi de yoksa A ve B sütunları boş
-									bırakılarak numaralar C sütununa yerleştirilmek zorundadır.
-								</li>
-								<li class="list-item">
-									Numaralar başında 0 olmadan 10 haneli olarak eklenmek
-									zorundadır.
+								<li>
+									<i class="el-icon-phone-outline text-primary mr-2"></i>
+									<span>
+										Sadece <strong>Telefon</strong> alanı zorunludur. Diğer
+										alanlar boş bırakılabilir.
+									</span>
 								</li>
 							</ul>
 							<app-form-row
 								class="i-con-h-a"
 								label="Arama Listesi"
-								description="Dosya formatı CSV olmalı ve dosya boyutu 2Mb veya altında olmalıdır."
+								description="CSV, XLS veya XLSX dosyası seçin. 2MB altında olmalı."
 							>
 								<el-upload
-									:headers="{
-										Authorization: 'Bearer ' + currentUser.api_token,
-										Accept: 'application/json',
-									}"
 									class="upload-demo"
-									accept=".csv"
+									accept=".csv,.xls,.xlsx"
+									action=""
 									drag
-									:on-error="fileError"
-									:on-success="fileUploaded"
-									:action="
-										apiEndpoint +
-											currentUser.customer.key +
-											'/operation/calling-lists/' +
-											form.id +
-											'/files'
-									"
+									:auto-upload="false"
+									:show-file-list="false"
+									:on-change="onFileSelected"
 								>
 									<i class="i-con i-con-arrow-up"><i></i></i>
 									<div class="el-upload__text">
@@ -293,6 +292,83 @@
 			</div>
 		</app-module-body>
 		<el-dialog
+			title="Kolonları Eşleştirin"
+			:visible.sync="mapper.visible"
+			width="820px"
+			append-to-body
+			:close-on-click-modal="false"
+			:before-close="closeMapper"
+		>
+			<div v-if="mapper.rows.length > 0">
+				<p class="mb-3 text-muted">
+					Toplam <strong>{{ mapper.rows.length }}</strong> satır bulundu.
+					Aşağıda dosyanın ilk satırlarını görüyorsunuz. Hangi kolonun hangi
+					alana karşılık geldiğini seçin.
+					<span class="text-danger">*</span> Telefon zorunludur.
+				</p>
+
+				<div class="mapper-preview-wrap mb-3">
+					<el-table
+						:data="mapperPreview"
+						size="small"
+						border
+						max-height="200"
+					>
+						<el-table-column
+							v-for="(h, idx) in mapper.header"
+							:key="idx"
+							:label="h || 'Kolon ' + (idx + 1)"
+							:prop="String(idx)"
+							min-width="120"
+						>
+							<template slot-scope="scope">
+								<span>{{ scope.row[idx] }}</span>
+							</template>
+						</el-table-column>
+					</el-table>
+				</div>
+
+				<div class="row">
+					<div
+						class="col-md-6 mb-3"
+						v-for="field in targetFields"
+						:key="field.key"
+					>
+						<label class="d-block mb-1">
+							{{ field.label }}
+							<span v-if="field.required" class="text-danger">*</span>
+						</label>
+						<el-select
+							v-model="mapper.mapping[field.key]"
+							placeholder="— Seçiniz —"
+							clearable
+							style="width: 100%"
+						>
+							<el-option
+								v-for="(h, idx) in mapper.header"
+								:key="idx"
+								:label="(h || 'Kolon ' + (idx + 1)) + sampleHint(idx)"
+								:value="idx"
+							></el-option>
+						</el-select>
+					</div>
+				</div>
+			</div>
+
+			<span slot="footer">
+				<el-button @click="closeMapper">İptal</el-button>
+				<el-button
+					type="primary"
+					:disabled="!canSubmitMapping || mapper.uploading"
+					:loading="mapper.uploading"
+					@click="submitMapping"
+				>
+					Yükle
+				</el-button>
+			</span>
+		</el-dialog>
+
+		<el-dialog
 			title="Başarısız Numaralar"
 			:visible.sync="failedRowsModal.visible"
 			width="720px"
@@ -344,6 +420,8 @@ import API from "../../../utils/API";
 import { VueFunnelGraph } from "vue-funnel-graph-js";
 import { mapGetters } from "vuex";
 import VueApexCharts from "vue-apexcharts";
+import * as XLSX from "xlsx";
+import Axios from "axios";
 
 export default {
 	components: {
@@ -411,6 +489,31 @@ export default {
 			fileUpload: false,
 			filesPage: 1,
 			filesPageSize: 10,
+			mapper: {
+				visible: false,
+				rows: [],
+				header: [],
+				mapping: {
+					name: "",
+					surname: "",
+					phone: "",
+					email: "",
+					gender: "",
+					birth_date: "",
+					identity_number: "",
+				},
+				sourceFileName: "",
+				uploading: false,
+			},
+			targetFields: [
+				{ key: "name", label: "Ad" },
+				{ key: "surname", label: "Soyad" },
+				{ key: "phone", label: "Telefon", required: true },
+				{ key: "email", label: "E-posta" },
+				{ key: "gender", label: "Cinsiyet" },
+				{ key: "birth_date", label: "Doğum Tarihi" },
+				{ key: "identity_number", label: "TC Kimlik No" },
+			],
 			failedRowsModal: {
 				visible: false,
 				loading: false,
@@ -448,6 +551,16 @@ export default {
 		paginatedFiles() {
 			const start = (this.filesPage - 1) * this.filesPageSize;
 			return (this.form.files || []).slice(start, start + this.filesPageSize);
+		},
+		mapperPreview() {
+			return (this.mapper.rows || []).slice(0, 5);
+		},
+		canSubmitMapping() {
+			return (
+				this.mapper.mapping.phone !== undefined &&
+				this.mapper.mapping.phone !== null &&
+				this.mapper.mapping.phone !== ""
+			);
 		},
 	},
 	beforeRouteEnter(to, from, next) {
@@ -521,6 +634,332 @@ export default {
 		},
 		showFileUpload() {
 			this.fileUpload = true;
+		},
+		decodeCsvBytes(bytes) {
+			let buf = bytes;
+			if (
+				buf.length >= 3 &&
+				buf[0] === 0xef &&
+				buf[1] === 0xbb &&
+				buf[2] === 0xbf
+			) {
+				buf = buf.slice(3);
+			}
+			try {
+				const utf8 = new TextDecoder("utf-8", { fatal: true });
+				return utf8.decode(buf);
+			} catch (e) {
+				try {
+					const tr = new TextDecoder("windows-1254");
+					return tr.decode(buf);
+				} catch (e2) {
+					return new TextDecoder("iso-8859-9").decode(buf);
+				}
+			}
+		},
+		onFileSelected(file) {
+			if (!file || !file.raw) return;
+
+			const allowed = [".csv", ".xls", ".xlsx"];
+			const name = (file.name || "").toLowerCase();
+			if (!allowed.some((ext) => name.endsWith(ext))) {
+				this.$message.error("Sadece CSV, XLS veya XLSX dosyaları yüklenebilir.");
+				return;
+			}
+			if (file.size > 2 * 1024 * 1024) {
+				this.$message.error("Dosya 2MB sınırını aşıyor.");
+				return;
+			}
+
+			const isCsv = name.endsWith(".csv");
+
+			const reader = new FileReader();
+			reader.onload = (e) => {
+				try {
+					const data = new Uint8Array(e.target.result);
+					let wb;
+					if (isCsv) {
+						const text = this.decodeCsvBytes(data);
+						wb = XLSX.read(text, { type: "string" });
+					} else {
+						wb = XLSX.read(data, { type: "array", cellDates: false });
+					}
+					const firstSheet = wb.Sheets[wb.SheetNames[0]];
+					if (!firstSheet) {
+						this.$message.error("Dosyada okunabilir sayfa bulunamadı.");
+						return;
+					}
+					const aoa = XLSX.utils.sheet_to_json(firstSheet, {
+						header: 1,
+						raw: true,
+						defval: "",
+						blankrows: false,
+					});
+					if (aoa.length === 0) {
+						this.$message.error("Dosya boş.");
+						return;
+					}
+
+					const firstRow = aoa[0] || [];
+					const looksLikeHeader = this.detectHeader(firstRow);
+					const header = looksLikeHeader
+						? firstRow.map((v) => (v == null ? "" : String(v)))
+						: firstRow.map((_, i) => "Kolon " + (i + 1));
+					const rows = looksLikeHeader ? aoa.slice(1) : aoa;
+
+					this.mapper.sourceFileName = file.name || "";
+					this.mapper.header = header;
+					this.mapper.rows = rows;
+					this.mapper.mapping = this.autoMapColumns(header, rows[0] || []);
+					this.mapper.visible = true;
+					this.fileUpload = false;
+				} catch (err) {
+					this.$message.error("Dosya okunamadı. Format hatalı olabilir.");
+				}
+			};
+			reader.onerror = () => {
+				this.$message.error("Dosya okunamadı.");
+			};
+			reader.readAsArrayBuffer(file.raw);
+		},
+		detectHeader(row) {
+			if (!row || row.length === 0) return false;
+			let phoneLikeIdx = -1;
+			for (let i = 0; i < row.length; i++) {
+				const cell = row[i];
+				if (typeof cell === "number") return false;
+				const s = String(cell || "").trim();
+				const digits = s.replace(/\D/g, "");
+				if (digits.length >= 10) {
+					phoneLikeIdx = i;
+					break;
+				}
+			}
+			return phoneLikeIdx === -1;
+		},
+		autoMapColumns(header, sampleRow) {
+			const guesses = {
+				name: [/^ad$/i, /isim/i, /first.*name/i, /^name$/i],
+				surname: [/soyad/i, /last.*name/i, /^surname$/i],
+				phone: [/telefon/i, /^tel$/i, /^tel\b/i, /phone/i, /gsm/i, /\bcep\b/i, /numara/i],
+				email: [/e.?mail/i, /e.?posta/i],
+				gender: [/cinsiyet/i, /gender/i],
+				birth_date: [/doğum/i, /dogum/i, /birth/i, /^tarih$/i, /^d\.?tarih/i],
+				identity_number: [/tc.?kim/i, /kimlik/i, /tckn/i, /^tc$/i, /identity/i],
+			};
+			const mapping = {
+				name: "",
+				surname: "",
+				phone: "",
+				email: "",
+				gender: "",
+				birth_date: "",
+				identity_number: "",
+			};
+			Object.keys(guesses).forEach((field) => {
+				for (let i = 0; i < header.length; i++) {
+					const cell = String(header[i] || "").trim();
+					if (cell && guesses[field].some((rx) => rx.test(cell))) {
+						mapping[field] = i;
+						return;
+					}
+				}
+			});
+			if (mapping.phone === "") {
+				for (let i = 0; i < (sampleRow || []).length; i++) {
+					const v = sampleRow[i];
+					const s = typeof v === "number" ? String(Math.round(v)) : String(v || "");
+					if (s.replace(/\D/g, "").length >= 10) {
+						mapping.phone = i;
+						break;
+					}
+				}
+			}
+			return mapping;
+		},
+		sampleHint(idx) {
+			const row = this.mapper.rows[0];
+			if (!row) return "";
+			const v = row[idx];
+			if (v === undefined || v === null || v === "") return "";
+			const s = typeof v === "number" ? String(v) : String(v);
+			const trimmed = s.length > 20 ? s.substring(0, 20) + "…" : s;
+			return "  (örn: " + trimmed + ")";
+		},
+		closeMapper() {
+			this.mapper.visible = false;
+			this.mapper.rows = [];
+			this.mapper.header = [];
+			this.mapper.mapping = {
+				name: "",
+				surname: "",
+				phone: "",
+				email: "",
+				gender: "",
+				birth_date: "",
+				identity_number: "",
+			};
+			this.mapper.sourceFileName = "";
+			this.fileUpload = true;
+		},
+		submitMapping() {
+			if (!this.canSubmitMapping || this.mapper.uploading) return;
+			this.mapper.uploading = true;
+
+			let csvText;
+			try {
+				const csvRows = this.mapper.rows.map((row) => this.normalizeRow(row));
+				const filtered = csvRows.filter((r) => r[2] && r[2].length > 0);
+				csvText = filtered.map((r) => r.join(";")).join("\n");
+			} catch (e) {
+				this.mapper.uploading = false;
+				this.$message.error("Dosya hazırlanırken hata oluştu.");
+				return;
+			}
+
+			const blob = new Blob([csvText], {
+				type: "text/csv;charset=utf-8",
+			});
+			const fd = new FormData();
+			const baseName = (this.mapper.sourceFileName || "list").replace(
+				/\.[^.]+$/,
+				""
+			);
+			fd.append("file", blob, baseName + ".csv");
+
+			const url =
+				process.env.VUE_APP_API_ENDPOINT +
+				this.currentUser.customer.key +
+				"/operation/calling-lists/" +
+				this.form.id +
+				"/files";
+
+			Axios.post(url, fd, {
+				headers: {
+					Authorization: "Bearer " + this.currentUser.api_token,
+					Accept: "application/json",
+				},
+			})
+				.then(() => {
+					this.mapper.uploading = false;
+					this.mapper.visible = false;
+					this.mapper.rows = [];
+					this.mapper.header = [];
+					this.mapper.mapping = {
+						name: "",
+						surname: "",
+						phone: "",
+						email: "",
+						gender: "",
+						birth_date: "",
+						identity_number: "",
+					};
+					this.errors = null;
+					this.$message.success("Dosya yüklendi, işleniyor.");
+					this.reloadFiles();
+				})
+				.catch((err) => {
+					this.mapper.uploading = false;
+					if (err.response && err.response.status === 422) {
+						this.errors = err.response.data.errors;
+						this.$message.error("Dosya doğrulanamadı.");
+					} else {
+						this.$message.error("Dosya yüklenemedi.");
+					}
+				});
+		},
+		normalizeRow(row) {
+			const get = (field) => {
+				const idx = this.mapper.mapping[field];
+				if (idx === undefined || idx === null || idx === "") return "";
+				return row[idx];
+			};
+			return [
+				this.normalizeText(get("name"), 100),
+				this.normalizeText(get("surname"), 100),
+				this.normalizePhone(get("phone")),
+				this.normalizeEmail(get("email")),
+				this.normalizeGender(get("gender")),
+				this.normalizeBirthDate(get("birth_date")),
+				this.normalizeText(get("identity_number"), 64),
+			];
+		},
+		normalizeText(v, maxLen) {
+			if (v === undefined || v === null) return "";
+			let s = (typeof v === "number" ? String(v) : String(v)).trim();
+			if (s.length === 0) return "";
+			s = s.replace(/[\r\n;]/g, " ");
+			if (/^[=+\-@\t]/.test(s)) s = "'" + s;
+			if (s.length > maxLen) s = s.substring(0, maxLen);
+			return s;
+		},
+		normalizePhone(v) {
+			if (v === undefined || v === null || v === "") return "";
+			let s = typeof v === "number" ? String(Math.round(v)) : String(v);
+			s = s.replace(/\D/g, "");
+			if (s.length === 13 && s.startsWith("900")) s = s.substring(3);
+			if (s.length === 12 && s.startsWith("90")) s = s.substring(2);
+			if (s.length === 11 && s.startsWith("0")) s = s.substring(1);
+			return s;
+		},
+		normalizeEmail(v) {
+			if (v === undefined || v === null || v === "") return "";
+			const s = String(v).trim().toLowerCase();
+			if (s.length > 100) return "";
+			if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s)) return "";
+			return s;
+		},
+		normalizeGender(v) {
+			if (v === undefined || v === null || v === "") return "";
+			const s = String(v).trim().toLowerCase();
+			if (/^(e|erkek|bay|m|male|man)$/.test(s)) return "male";
+			if (/^(k|kadın|kadin|bayan|f|female|woman)$/.test(s)) return "female";
+			if (/^(diğer|diger|other|o)$/.test(s)) return "other";
+			return "";
+		},
+		normalizeBirthDate(v) {
+			if (v === undefined || v === null || v === "") return "";
+			if (typeof v === "number" && v > 0 && v < 2958466) {
+				const days = Math.floor(v);
+				const ms = days * 86400000;
+				const date = new Date(Date.UTC(1899, 11, 30) + ms);
+				return this.toIsoDate(date);
+			}
+			const s = String(v).trim();
+			if (s === "") return "";
+			let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+			if (m) return this.validIsoDate(m[1], m[2], m[3]);
+			m = s.match(/^(\d{1,2})[.\/\-](\d{1,2})[.\/\-](\d{4})$/);
+			if (m) return this.validIsoDate(m[3], m[2], m[1]);
+			m = s.match(/^(\d{4})[.\/](\d{1,2})[.\/](\d{1,2})$/);
+			if (m) return this.validIsoDate(m[1], m[2], m[3]);
+			return "";
+		},
+		toIsoDate(date) {
+			if (isNaN(date.getTime())) return "";
+			const y = date.getUTCFullYear();
+			const m = String(date.getUTCMonth() + 1).padStart(2, "0");
+			const d = String(date.getUTCDate()).padStart(2, "0");
+			return y + "-" + m + "-" + d;
+		},
+		validIsoDate(y, m, d) {
+			const Y = parseInt(y, 10);
+			const M = parseInt(m, 10);
+			const D = parseInt(d, 10);
+			if (isNaN(Y) || isNaN(M) || isNaN(D)) return "";
+			if (Y < 1900 || Y > 2100) return "";
+			if (M < 1 || M > 12) return "";
+			if (D < 1 || D > 31) return "";
+			const date = new Date(Date.UTC(Y, M - 1, D));
+			if (
+				date.getUTCFullYear() !== Y ||
+				date.getUTCMonth() !== M - 1 ||
+				date.getUTCDate() !== D
+			)
+				return "";
+			return (
+				Y + "-" + String(M).padStart(2, "0") + "-" + String(D).padStart(2, "0")
+			);
 		},
 		fileIndex(row) {
 			return this.form.files.findIndex((f) => f.id === row.id);
@@ -643,6 +1082,27 @@ export default {
 
 .el-upload-dragger {
 	padding-top: 60px;
+}
+
+.list-tips {
+	list-style: none;
+	padding-left: 0;
+}
+.list-tips li {
+	display: flex;
+	align-items: flex-start;
+	padding: 6px 10px;
+	font-size: 13px;
+	line-height: 1.5;
+	border-radius: 4px;
+}
+.list-tips li:hover {
+	background: #f7fafc;
+}
+.list-tips li i {
+	font-size: 16px;
+	margin-top: 2px;
+	flex-shrink: 0;
 }
 
 .el-upload {
