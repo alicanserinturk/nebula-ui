@@ -8,6 +8,7 @@
 				endpoint="agent/tasks"
 				vector="customer"
 				:filters="filters"
+				:searchable="false"
 			>
 				<template :slot-scope="item">
 					<el-table-column width="55px">

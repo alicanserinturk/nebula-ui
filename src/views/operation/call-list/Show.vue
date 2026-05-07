@@ -87,6 +87,7 @@
 									<div class="mt-4 mb-5">
 										<h6 class="ml-4 mb-3">Ulaşılanlar</h6>
 										<vue-funnel-graph
+											v-if="counts.total > 0"
 											:width="600"
 											:height="95"
 											:labels="labels"
@@ -95,6 +96,9 @@
 											:sub-labels="subLabels"
 											:display-percentage="true"
 										></vue-funnel-graph>
+										<p v-else class="ml-4 text-muted small">
+											Henüz görev bulunmuyor.
+										</p>
 									</div>
 								</div>
 								<div class="col-md-4 pt-3">
@@ -353,6 +357,17 @@
 						</el-select>
 					</div>
 				</div>
+				<div class="mt-2">
+					<label class="d-block mb-1">Atanacak Kullanıcılar</label>
+					<p class="text-muted small mb-2">
+						Bu dosyadan oluşturulacak görevler seçilen kullanıcılara eşit
+						olarak dağıtılır. Boş bırakılırsa görevler atanmadan oluşturulur.
+					</p>
+					<app-form-user-select
+						:multiple="true"
+						v-model="mapper.userIds"
+					></app-form-user-select>
+				</div>
 			</div>
 
 			<span slot="footer">
@@ -502,6 +517,7 @@ export default {
 					birth_date: "",
 					identity_number: "",
 				},
+				userIds: [],
 				sourceFileName: "",
 				uploading: false,
 			},
@@ -788,6 +804,7 @@ export default {
 				birth_date: "",
 				identity_number: "",
 			};
+			this.mapper.userIds = [];
 			this.mapper.sourceFileName = "";
 			this.fileUpload = true;
 		},
@@ -815,6 +832,9 @@ export default {
 				""
 			);
 			fd.append("file", blob, baseName + ".csv");
+			(this.mapper.userIds || []).forEach((uid) => {
+				fd.append("user_ids[]", uid);
+			});
 
 			const url =
 				process.env.VUE_APP_API_ENDPOINT +
@@ -843,6 +863,7 @@ export default {
 						birth_date: "",
 						identity_number: "",
 					};
+					this.mapper.userIds = [];
 					this.errors = null;
 					this.$message.success("Dosya yüklendi, işleniyor.");
 					this.reloadFiles();

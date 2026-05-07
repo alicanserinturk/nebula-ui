@@ -1,11 +1,20 @@
 export default {
     dateToMilliseconds(date) {
-        if (typeof date === 'undefined')
-            date = "0"
-        let parts = date.split(":");
-        return (parseInt(parts[0]) * 60 * 60) + (parseInt(parts[1]) * 60) + parseInt(parts[2]);
+        if (date === undefined || date === null || date === '' || typeof date !== 'string') {
+            return 0;
+        }
+        const parts = date.split(":");
+        const h = parseInt(parts[0], 10);
+        const m = parseInt(parts[1], 10);
+        const s = parseInt(parts[2], 10);
+        return (Number.isFinite(h) ? h * 3600 : 0)
+            + (Number.isFinite(m) ? m * 60 : 0)
+            + (Number.isFinite(s) ? s : 0);
     },
     millisecondToDate(milliseocond) {
+        if (!Number.isFinite(milliseocond) || milliseocond < 0) {
+            milliseocond = 0;
+        }
         let hour = Math.floor(milliseocond / (60 * 60));
         let minute = Math.floor((milliseocond - (hour * 60 * 60)) / (60));
         let second = milliseocond - ((hour * 60 * 60) + (minute * 60));

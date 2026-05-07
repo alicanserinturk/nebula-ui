@@ -43,9 +43,10 @@
         <div class="row no-gutters">
           <div class="col">
             <div class="app-module-toolbar bg-white row row-xs pb-0 pt-0 position-relative">
-              <div class="col-md app-table-filter-search" style="padding-bottom:0 !important;">
+              <div v-if="searchable" class="col-md app-table-filter-search" style="padding-bottom:0 !important;">
                 <el-input v-model="search.key" size="mini" prefix-icon="el-icon-search" placeholder="Ara..."></el-input>
               </div>
+              <div v-else class="col-md" style="padding-bottom:0 !important;"></div>
               <div class="col-auto" style="padding-bottom:0 !important;" v-for="(filter, key) in filters" v-if="filter.type !== 'primary' && filter.value !== '' && filter.value">
                 <div slot="reference" class=" btn-light r-3x b-l ml-1 btn-toolbar" :key="key" @click="filterVisible = true; filterLoaded = true;">
                   <span class="d-inline-block">{{ getFilterLabel(filter) }}</span><button class="btn btn-icon btn-white btn-rounded"><ion-icon name="close" @click="filter.value = null"></ion-icon></button>
@@ -71,8 +72,8 @@
                     <button class="btn btn-light mr-2 btn-rounded" @click="filterVisible = false">Kapat</button>
                     <button class="btn btn-primary btn-rounded" @click="filterVisible = false">Uygula</button>
                   </div>
-                  <div class="b-l btn-toolbar"  v-if="Object.keys(filters).length > 0" slot="reference" @click="filterVisible = true; filterLoaded = true;">
-                    <span><ion-icon name="filter-outline"></ion-icon></span>
+                  <div class="btn-light r-3x b-l ml-1 btn-toolbar" v-if="Object.keys(filters).length > 0" slot="reference" @click="filterVisible = true; filterLoaded = true;">
+                    <span class="d-inline-block mr-1"><ion-icon name="filter-outline"></ion-icon> Filtre</span>
                   </div>
                 </el-popover>
 
@@ -311,6 +312,7 @@ export default {
       }
     },
     'selectable': {required: false, default: false},
+    'searchable': {required: false, default: true},
     beforeDownload: {required: false, default: false}
   },
   data() {
@@ -688,13 +690,16 @@ export default {
       Object.keys(this.filters).forEach((key) => {
         endpoint = endpoint.replace(':' + key, this.filters[key].value);
       });
-      this.$api.get(endpoint, {
+      const params = {
         ...filters,
         page: all ? 1 : this.pagination.current_page,
         per_page: all ? 10000 : this.pagination.per_page,
-        q: this.search.key,
         archived: this.archived,
-      }, callback );
+      };
+      if (this.searchable) {
+        params.q = this.search.key;
+      }
+      this.$api.get(endpoint, params, callback);
     },
     getData() {
       let self = this;

@@ -6,6 +6,9 @@ if (process.env.VUE_APP_ENV === 'production') {
 }
 
 import Vue from 'vue'
+
+Vue.config.ignoredElements = ['ion-icon', /^ion-/]
+
 import App from './App.vue'
 import router from './router'
 import store from './store'

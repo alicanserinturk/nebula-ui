@@ -22,32 +22,30 @@
               <app-form-number-select v-model="form.number.id"></app-form-number-select>
             </app-form-row>
             <app-form-row label="Aranma Türü" description='"Tıklayarak Arama", görevler listesinden arama yapmayı gerektirir. "Otomatik Arama" seçildiği taktirde liste otomatik aranır ve temsilciye aktarılır.'>
-              <el-radio-group v-model="form.call_type" size="medium">
+              <el-radio-group v-model="form.call_type" size="medium" @change="onCallTypeChange">
                 <el-radio label="auto" border>Otomatik Arama</el-radio>
                 <el-radio label="click" border>Tıklayarak Arama</el-radio>
               </el-radio-group>
             </app-form-row>
           </app-card>
-          <app-card title="Otomatik Arama">
+          <app-card v-if="form.call_type === 'auto'" title="Otomatik Arama">
             <app-form-row label="Arama Grubu" description="Otomatik olarak başlatılan çağrıların hangi kuyruğa yönlendirileceğini belirleyin.">
               <app-form-queue-select v-model="form.queue.id"></app-form-queue-select>
             </app-form-row>
-            <template v-if="form.call_type === 'auto'">
-              <app-form-row label="Arama Önceliği" description="Önceliği yüksek olan arama listeleri düşük ve normal öncelikli listelerden daha öncelikli olarak başlatılacaktır.">
-                <el-select v-model="form.priority">
-                  <el-option value="low" label="Düşük">Düşük</el-option>
-                  <el-option value="normal" label="Normal">Normal</el-option>
-                  <el-option value="high" label="Yüksek">Yüksek</el-option>
-                </el-select>
-              </app-form-row>
-              <app-form-row v-if="$api.has('call_list_create',true) || $api.has('call_list_edit',true)" label="Çağrı Yoğunluğu" description="Kuyruğa dahil her müsait temsilci için fazladan kaç çağrı başlatılacağını yüzdesel olarak belirleyebilirsiniz. Böylece temsilci performansını en üst düzeye çıkarırken, arama grubunda bekleyen müşteri sayısınıysa arttırmış olacaksınız.">
-                <div class="p-5 r-2x bg-light-lt border">
-                  <div class="px-3">
-                    <el-slider v-model="form.manual_throttle" :marks="marks" :min="0" :max="100" :step="10"></el-slider>
-                  </div>
+            <app-form-row label="Arama Önceliği" description="Önceliği yüksek olan arama listeleri düşük ve normal öncelikli listelerden daha öncelikli olarak başlatılacaktır.">
+              <el-select v-model="form.priority">
+                <el-option value="low" label="Düşük">Düşük</el-option>
+                <el-option value="normal" label="Normal">Normal</el-option>
+                <el-option value="high" label="Yüksek">Yüksek</el-option>
+              </el-select>
+            </app-form-row>
+            <app-form-row v-if="$api.has('call_list_create',true) || $api.has('call_list_edit',true)" label="Çağrı Yoğunluğu" description="Kuyruğa dahil her müsait temsilci için fazladan kaç çağrı başlatılacağını yüzdesel olarak belirleyebilirsiniz. Böylece temsilci performansını en üst düzeye çıkarırken, arama grubunda bekleyen müşteri sayısınıysa arttırmış olacaksınız.">
+              <div class="p-5 r-2x bg-light-lt border">
+                <div class="px-3">
+                  <el-slider v-model="form.manual_throttle" :marks="marks" :min="0" :max="100" :step="10"></el-slider>
                 </div>
-              </app-form-row>
-            </template>
+              </div>
+            </app-form-row>
           </app-card>
         </div>
         <div class="app-module-sidebar">
@@ -101,7 +99,7 @@ export default {
         name: '',
         starts_at: '',
         priority: 'low',
-        manual_throttle: null,
+        manual_throttle: 0,
         is_active: true,
         queue: {
           id: null
@@ -115,6 +113,7 @@ export default {
         retry_days: 3,
         file: null,
       },
+      originalCallType: null,
       marks: {
         0: 'Yoğun Değil',
         20: 'Yoğun',
@@ -127,8 +126,15 @@ export default {
     if (to.params.id) {
       API.get('operation/calling-lists/' + to.params.id, {}, (response) => {
         next(wm => {
-          wm.form = response.data.data
-          wm.form.allowed_weekdays = wm.form.allowed_weekdays || [];
+          const data = response.data.data;
+          wm.form = {
+            ...data,
+            allowed_weekdays: data.allowed_weekdays || [],
+            queue: data.queue || { id: null },
+            number: data.number || { id: null },
+            manual_throttle: data.manual_throttle ?? 0,
+          };
+          wm.originalCallType = data.call_type;
         });
       })
     } else {
@@ -136,6 +142,14 @@ export default {
     }
   },
   methods: {
+    onCallTypeChange(value) {
+      if (this.originalCallType && value !== this.originalCallType) {
+        this.$message.warning('Liste oluşturulduktan sonra arama türü değiştirilemez.');
+        this.$nextTick(() => {
+          this.form.call_type = this.originalCallType;
+        });
+      }
+    },
     save() {
       if (this.$route.params.id) {
         this.update();
