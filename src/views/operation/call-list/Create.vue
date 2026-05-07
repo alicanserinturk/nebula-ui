@@ -53,7 +53,8 @@
             <app-form-row label="Planlanan Tarih" description="Arama seçilen tarih itibariyle başlatılacaktır.">
               <el-date-picker
                   v-model="form.starts_at"
-                  type="datetime">
+                  type="datetime"
+                  value-format="yyyy-MM-dd HH:mm:ss">
               </el-date-picker>
             </app-form-row>
             <app-form-row label="Arama Günleri" description="Aramanın hangi günler yapılacağını temsil eder.">
