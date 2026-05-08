@@ -40,7 +40,7 @@
 				</el-table-column>
 				<el-table-column align="right" label="Toplam" width="100">
 					<template slot-scope="scope">
-						{{ scope.row.total_time }}
+						{{ formatter.millisecondToDate(scope.row.duration) }}
 					</template>
 				</el-table-column>
 			</app-table>
@@ -48,9 +48,12 @@
 	</app-module>
 </template>
 <script>
+import formatter from "@/utils/Formatters";
+
 export default {
 	data() {
 		return {
+			formatter,
 			filters: {
 				user_id: {
 					required: true,

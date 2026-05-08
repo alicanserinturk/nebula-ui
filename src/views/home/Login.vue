@@ -45,7 +45,7 @@
                 </div>
               </SkeletonTheme>
             </div>
-            <vue-recaptcha :loadRecaptchaScript="true" @error="handleCaptchaError" class="mb-3" @verify="verify" @render="onReady" :sitekey="recaptchaSiteKey"></vue-recaptcha>
+            <div ref="turnstileWidget" class="mb-3"></div>
           </div>
           <div v-else @keyup.enter="setCache">
             <app-information :errors="loginErrors"></app-information>
@@ -140,13 +140,13 @@
 <script>
 
 import {mapActions, mapGetters, mapMutations} from "vuex";
-import VueRecaptcha from 'vue-recaptcha';
 import EventBus from "@/utils/EventBus";
 import {Skeleton, SkeletonTheme} from 'vue-loading-skeleton';
 
+const TURNSTILE_SCRIPT_URL = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+
 export default {
   components: {
-    VueRecaptcha,
     Skeleton,
     SkeletonTheme
   },
@@ -161,9 +161,10 @@ export default {
         email: "",
         password: "",
         remember_me: true,
-        g_recaptcha_response: '',
+        cf_turnstile_response: '',
       },
-      recaptchaSiteKey: process.env.VUE_APP_GOOGLE_RECAPTCHA_SITE_KEY,
+      turnstileSiteKey: process.env.VUE_APP_CF_TURNSTILE_SITE_KEY,
+      turnstileWidgetId: null,
       warning: false,
       warnings: {
         'terminate': 'Sistemde yapılan çalışma sebebiyle operasyondan çıkarıldınız. Kısa bir süre sonra tekrar deneyebilirsiniz.',
@@ -193,14 +194,6 @@ export default {
   methods: {
     ...mapActions(['login']),
     ...mapMutations(['clearLoginErrors']),
-    handleCaptchaError(error){
-      this.$message.error(error)
-    },
-    verify(e) {
-      this.robot = true;
-      this.form.g_recaptcha_response = e;
-      this.submit();
-    },
     submit() {
       if (this.form.email !== '' && this.form.password !== '') {
         this.login(this.form);
@@ -208,15 +201,65 @@ export default {
     },
     setCache() {
       if (this.form.email !== '' && this.form.password !== '') {
-        const recaptchaEnabled = process.env.VUE_APP_GOOGLE_RECAPTCHA_ENABLED !== 'false';
-        if (process.env.VUE_APP_ENV !== 'production' || !recaptchaEnabled) {
-          this.form.g_recaptcha_response = 'local-env';
+        const turnstileEnabled = process.env.VUE_APP_CF_TURNSTILE_ENABLED !== 'false';
+        if (process.env.VUE_APP_ENV !== 'production' || !turnstileEnabled) {
+          this.form.cf_turnstile_response = 'local-env';
           this.submit();
           return;
         }
         this.ready = false;
         this.clearLoginErrors();
         this.cache = true;
+      }
+    },
+    loadTurnstileScript() {
+      if (window.turnstile) {
+        return Promise.resolve();
+      }
+      if (this._turnstileLoadPromise) {
+        return this._turnstileLoadPromise;
+      }
+      this._turnstileLoadPromise = new Promise((resolve, reject) => {
+        const existing = document.querySelector('script[data-turnstile]');
+        if (existing) {
+          existing.addEventListener('load', () => resolve());
+          existing.addEventListener('error', reject);
+          return;
+        }
+        const script = document.createElement('script');
+        script.src = TURNSTILE_SCRIPT_URL;
+        script.async = true;
+        script.defer = true;
+        script.dataset.turnstile = '1';
+        script.onload = () => resolve();
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+      return this._turnstileLoadPromise;
+    },
+    async renderTurnstile() {
+      try {
+        await this.loadTurnstileScript();
+        await this.$nextTick();
+        if (!this.$refs.turnstileWidget || !window.turnstile) return;
+        this.turnstileWidgetId = window.turnstile.render(this.$refs.turnstileWidget, {
+          sitekey: this.turnstileSiteKey,
+          callback: (token) => {
+            this.robot = true;
+            this.form.cf_turnstile_response = token;
+            this.submit();
+          },
+          'error-callback': () => {
+            this.$message.error('Cloudflare Turnstile doğrulaması başarısız.');
+          },
+          'expired-callback': () => {
+            this.form.cf_turnstile_response = '';
+          },
+        });
+        this.ready = true;
+      } catch (e) {
+        this.$message.error('Doğrulama servisi yüklenemedi.');
+        this.cache = false;
       }
     },
     setActiveUser(user) {
@@ -233,11 +276,15 @@ export default {
       this.lastUsers.splice(cacheIndex, 1);
       localStorage.setItem('lastUsers', JSON.stringify(this.lastUsers));
     },
-    onReady(){
-      this.ready = true;
-    }
   },
   watch: {
+    cache(val) {
+      if (val) {
+        this.renderTurnstile();
+      } else {
+        this.turnstileWidgetId = null;
+      }
+    },
     loading(val) {
       if (val) {
         this.cache = false;
