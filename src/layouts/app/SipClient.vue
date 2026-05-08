@@ -313,15 +313,8 @@
 				>
 					<a href="javascript:;" class="d-inline-block">
 						<span
-							@click="numberCopy('05** *** ** **')"
-							class="text-muted d-block sip-number"
-							v-if="(sip.session.remote_identity.uri.user || '').length < 11"
-							><i class="el-icon-user"></i> 05** *** ** **
-						</span>
-						<span
 							@click="numberCopy(sip.session.remote_identity.uri.user)"
-							class="text-muted d-block  sip-number"
-							v-else
+							class="text-muted d-block sip-number"
 							><i class="el-icon-user"></i>
 							{{ sip.session.remote_identity.uri.user }}
 						</span>
