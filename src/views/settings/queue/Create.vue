@@ -29,13 +29,21 @@
                 <span class="el-input__icon mr-2" slot="suffix">Saniye</span>
               </el-input>
             </app-form-row>
-            <app-form-row label="Arama Grubu Dağıtma Stratejisi" description="Dağıtma stratejisi, arama grubundaki çağrıların kullanıcılara hangi öncelikle bağlanacağını temsil eder.">
-              <el-select v-model="form.strategy">
-                <el-option value="random" label="Rastgele bağla"></el-option>
-                <el-option value="fewestcalls" label="Hatta en az çağrı alan kullanıcıya bağla"></el-option>
-                <el-option value="leastrecent" label="Hatta en uzun süredir bekleyen kullanıcıya bağla">
-                  <span class="float-left">Hatta müsait durumda en uzun süredir bekleyen kullanıcıya bağla</span>
-                  <span class="float-right"><small class="text-muted">Önerilen</small></span>
+            <app-form-row label="Arama Grubu Dağıtma Stratejisi" description="Gelen çağrının kuyruktaki kullanıcılara nasıl dağıtılacağını belirler.">
+              <el-select v-model="form.strategy" popper-class="strategy-select-popper" class="strategy-select">
+                <el-option
+                  v-for="opt in strategyOptions"
+                  :key="opt.value"
+                  :value="opt.value"
+                  :label="opt.title"
+                >
+                  <div class="strategy-option">
+                    <div class="strategy-option__head">
+                      <span class="strategy-option__title">{{ opt.title }}</span>
+                      <small v-if="opt.recommended" class="strategy-option__badge">Önerilen</small>
+                    </div>
+                    <small class="strategy-option__desc">{{ opt.description }}</small>
+                  </div>
                 </el-option>
               </el-select>
             </app-form-row>
@@ -62,7 +70,40 @@
   </app-module>
 </template>
 <style>
-
+.strategy-select-popper .el-select-dropdown__item {
+  height: auto;
+  line-height: 1.4;
+  padding: 10px 20px;
+}
+.strategy-option__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.strategy-option__title {
+  font-weight: 500;
+  color: #1f2d3d;
+}
+.strategy-option__desc {
+  display: block;
+  color: #909399;
+  font-size: 12px;
+  margin-top: 2px;
+  white-space: normal;
+}
+.strategy-option__badge {
+  background: #f0f9eb;
+  color: #67c23a;
+  border: 1px solid #e1f3d8;
+  border-radius: 10px;
+  padding: 1px 8px;
+  font-size: 11px;
+  line-height: 1.4;
+}
+.el-select-dropdown__item.selected .strategy-option__title {
+  color: #409eff;
+}
 </style>
 <script>
 import API from "../../../utils/API";
@@ -79,6 +120,39 @@ export default {
         service_level: 20,
       },
       pbxs: [],
+      strategyOptions: [
+        {
+          value: 'leastrecent',
+          title: 'En uzun süredir çağrı almamış kullanıcıya bağla',
+          description: 'Üyeler arasında en adil yük dağıtımı — çoğu durumda en iyi seçim.',
+          recommended: true,
+        },
+        {
+          value: 'rrmemory',
+          title: 'Sırayla dağıt, kaldığı yerden devam et',
+          description: 'Her gelen çağrı sıradaki bir sonraki kullanıcıya gider (klasik round-robin).',
+        },
+        {
+          value: 'fewestcalls',
+          title: 'Bugün en az çağrı almış kullanıcıya bağla',
+          description: 'Gün içindeki toplam çağrı sayısını kullanıcılar arasında dengelemek için.',
+        },
+        {
+          value: 'ringall',
+          title: 'Tüm kullanıcıları aynı anda çaldır',
+          description: 'Telefon herkeste birden çalar, ilk cevaplayan alır. Küçük ekipler için uygun.',
+        },
+        {
+          value: 'linear',
+          title: 'Listedeki sıraya göre dene',
+          description: 'Her çağrı en üstteki kullanıcıdan başlar, cevap yoksa alttakine düşer. Sıra kuyruk detay sayfasından düzenlenir.',
+        },
+        {
+          value: 'random',
+          title: 'Rastgele bir kullanıcıya bağla',
+          description: 'Yük dağılımının nasıl olduğu önemli değilse uygundur.',
+        },
+      ],
     }
   },
   beforeRouteEnter(to, from, next) {

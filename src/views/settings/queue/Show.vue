@@ -47,14 +47,12 @@
 							>{{ form["timeout"] }} Saniye</app-label
 						>
 						<app-label icon="el-icon-sort" label="Kuyruk Dağıtma Stratejisi">
-							<span v-if="form['strategy'] === 'random'">Rastgele bağla</span>
-							<span v-else-if="form['strategy'] === 'fewestcalls'"
-								>Hatta en az çağrı alan kullanıcıya bağla</span
-							>
-							<span v-else-if="form['strategy'] === 'leastrecent'"
-								>Hatta müsait durumda en uzun süredir bekleyen kullanıcıya
-								bağla</span
-							>
+							<span v-if="form['strategy'] === 'leastrecent'">En uzun süredir çağrı almamış kullanıcıya bağla</span>
+							<span v-else-if="form['strategy'] === 'rrmemory'">Sırayla dağıt (kaldığı yerden devam eder)</span>
+							<span v-else-if="form['strategy'] === 'fewestcalls'">Bugün en az çağrı almış kullanıcıya bağla</span>
+							<span v-else-if="form['strategy'] === 'ringall'">Tüm kullanıcıları aynı anda çaldır, ilk cevaplayan alır</span>
+							<span v-else-if="form['strategy'] === 'linear'">Listedeki sıraya göre dene, her zaman ilk kullanıcıdan başla</span>
+							<span v-else-if="form['strategy'] === 'random'">Rastgele bir kullanıcıya bağla</span>
 						</app-label>
 						<app-label icon="el-icon-timer" label="SLA Eşiği"
 							>{{ form["service_level"] }} Saniye</app-label
@@ -72,7 +70,7 @@
 									:action-endpoint="'settings/queues/' + form.id"
 									action-field="users"
 									name="Kullanıcıları Yönet"
-									@change="update"
+									@change="onMembersChanged"
 								>
 									<template slot-scope="{ row }">
 										{{ row.name }}
@@ -81,25 +79,41 @@
 								</app-selector>
 							</div>
 						</template>
+						<div class="px-3 pb-3">
+							<el-alert type="info" :closable="false" show-icon>
+								<small>
+									Kullanıcıları sürükleyerek sıralayabilirsiniz. Bu sıralama, <strong>"Listedeki sıraya göre dene"</strong> stratejisi seçildiğinde çağrı dağıtımını doğrudan etkiler — üstteki kullanıcı her çağrıda ilk denenen olur. Diğer stratejilerde sıra yalnızca gösterim amaçlıdır.
+								</small>
+							</el-alert>
+						</div>
 						<div v-if="form.users.length === 0" class="text-center p-3">
 							<small>Arama grubunda herhangi bir kullanıcı bulunamadı.</small>
 						</div>
 						<div v-else>
-							<div class="list list-row p-0" v-for="(item, key) in form.users">
-								<div class="list-item p-0 mb-4">
-									<div class="p-0">
-										<span class="w-40 mr-1 avatar circle bg-light"
-											>{{ item.name[0] }}{{ item.name[0] }}</span
-										>
-									</div>
-									<div class="flex">
-										<span class="item-author"
-											>{{ item.name }} {{ item.name }}</span
-										>
-										<small class="d-block text-muted">{{ item.email }}</small>
+							<draggable v-model="form.users" handle=".queue-user-drag" @end="updateOrder">
+								<div
+									class="list list-row p-0"
+									v-for="item in form.users"
+									:key="item.id"
+								>
+									<div class="list-item p-0 mb-4 align-items-center">
+										<div class="p-0 pr-2 queue-user-drag" style="cursor: grab;" title="Sürükleyerek sırala">
+											<i class="el-icon-rank text-muted" style="font-size: 18px;"></i>
+										</div>
+										<div class="p-0">
+											<span class="w-40 mr-1 avatar circle bg-light"
+												>{{ item.name[0] }}{{ (item.surname || item.name)[0] }}</span
+											>
+										</div>
+										<div class="flex">
+											<span class="item-author"
+												>{{ item.name }} {{ item.surname }}</span
+											>
+											<small class="d-block text-muted">{{ item.email }}</small>
+										</div>
 									</div>
 								</div>
-							</div>
+							</draggable>
 						</div>
 					</app-card>
 				</div>
@@ -109,8 +123,12 @@
 </template>
 <script>
 import API from "../../../utils/API";
+import draggable from "vuedraggable";
 
 export default {
+	components: {
+		draggable,
+	},
 	data() {
 		return {
 			form: {
@@ -125,17 +143,20 @@ export default {
 			});
 		});
 	},
-	created() {
-		this.getUsers();
-	},
 	methods: {
-		getUsers() {
-			this.$api.get("settings/users", {}, (response) => {
-				this.users = response.data.data;
-				console.log(response);
-			});
+		onMembersChanged() {
+			// app-selector kayıt sonrası burada bildirir; yeni eklenenleri
+			// sıranın sonuna koymak için tekrar order PUT etmiyoruz çünkü
+			// selector zaten /users alanını PUT etti. Position değerleri
+			// backend'de dizi sırasına göre yeniden atanır.
 		},
-		update() {},
+		updateOrder() {
+			this.$api.put(
+				"settings/queues/" + this.form.id,
+				{ users: this.form.users.map((u) => u.id) },
+				() => {}
+			);
+		},
 	},
 };
 </script>

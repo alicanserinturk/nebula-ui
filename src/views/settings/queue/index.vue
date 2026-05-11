@@ -15,9 +15,12 @@
             <template slot-scope="scope">
               <router-link :to="$route.path + '/' + scope.row.id"><span>{{ scope.row.name }}</span></router-link>
               <span class="sub-item text-muted">
-                <span v-if="scope.row.strategy === 'random'">Rastgele bağla</span>
-              <span v-else-if="scope.row.strategy === 'fewestcalls'">Hatta en az çağrı alan kullanıcıya bağla</span>
-              <span v-else-if="scope.row.strategy === 'leastrecent'">Hatta en uzun süredir bekleyen kullanıcıya bağla</span>
+                <span v-if="scope.row.strategy === 'leastrecent'">En uzun süredir çağrı almamış kullanıcıya bağla</span>
+                <span v-else-if="scope.row.strategy === 'rrmemory'">Sırayla dağıt (kaldığı yerden devam eder)</span>
+                <span v-else-if="scope.row.strategy === 'fewestcalls'">Bugün en az çağrı almış kullanıcıya bağla</span>
+                <span v-else-if="scope.row.strategy === 'ringall'">Tüm kullanıcıları aynı anda çaldır, ilk cevaplayan alır</span>
+                <span v-else-if="scope.row.strategy === 'linear'">Listedeki sıraya göre dene, her zaman ilk kullanıcıdan başla</span>
+                <span v-else-if="scope.row.strategy === 'random'">Rastgele bir kullanıcıya bağla</span>
                  &#183; <app-date-text :text="scope.row.created_at"></app-date-text> önce oluşturuldu</span>
               </span>
               

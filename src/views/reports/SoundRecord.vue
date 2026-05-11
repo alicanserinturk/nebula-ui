@@ -1,7 +1,7 @@
 <template>
   <app-module>
     <app-module-header>
-      
+
     </app-module-header>
     <app-module-body>
       <app-table :downloadable="true" archivable endpoint="reports/sound" :options="options" vector="report">
@@ -68,41 +68,28 @@
             </template>
           </div>
           <div class="col-md-auto pr-4">
-            <a target="_blank" :href="currentUser.servers.media + item.sound_file" class="btn mr-2 btn-light btn-sm btn-rounded" :download="item.sound_file + '.vaw'">İndir <i class="el-icon-download"></i></a>
+            <a v-if="downloadUrl" :href="downloadUrl" class="btn mr-2 btn-light btn-sm btn-rounded">
+              İndir <i class="el-icon-download"></i>
+            </a>
           </div>
         </div>
       </template>
 
-      <!--<div class="row">
-        <div class="col-md-7 pt-4">
-          <div class="mb-2">
-            <small>Arama Yönü:</small>
-            <span class="d-block text-muted"><span v-if="item.direction === 'out'">Giden</span><span v-else>Gelen</span></span>
-          </div>
-          <div class="mb-2">
-            <small>Numara:</small>
-            <span class="d-block text-muted">{{item.number}}</span>
-          </div>
-          <div class="mb-2">
-            <small>Tarih:</small>
-            <span class="d-block text-muted"><app-date-text :text="item.start_at"></app-date-text></span>
-          </div>
+      <div class="px-2">
+        <app-audio v-if="audioUrl" :src="audioUrl"></app-audio>
+        <div v-else-if="loading" class="text-center text-muted py-3">
+          <i class="el-icon-loading mr-1"></i> Ses kaydı hazırlanıyor...
         </div>
-        <div class="col-md-5">
-          <img src="/assets/img/vectors/player.svg" alt="">
+        <div v-else-if="errorMessage" class="text-center text-muted py-3">
+          {{ errorMessage }}
         </div>
-      </div>-->
-
-      <div class="px-2" slot="footer">
-        <app-audio :src="currentUser.servers.media + item.sound_file"></app-audio>
       </div>
     </el-dialog>
   </app-module>
 </template>
 <script>
-//https://gist.github.com/larryyangsen/b2f293edaefde4067e2a289756c2f188
-
 import {mapGetters} from "vuex";
+import API from "@/utils/API";
 
 export default {
   data() {
@@ -110,13 +97,11 @@ export default {
       options: {},
       fileModalVisible: false,
       item: null,
-      audio: {
-        source: '',
-      }
+      audioUrl: null,
+      downloadUrl: null,
+      loading: false,
+      errorMessage: null,
     }
-  },
-  created() {
-
   },
   computed: {
     ...mapGetters(['currentUser']),
@@ -124,7 +109,27 @@ export default {
   methods: {
     showFile(item) {
       this.item = item;
+      this.audioUrl = null;
+      this.downloadUrl = null;
+      this.errorMessage = null;
+      this.loading = true;
       this.fileModalVisible = true;
+
+      API.get('media/sound/play', { cid: item.asterisk_id },
+        (response) => {
+          this.loading = false;
+          if (response && response.data && response.data.url) {
+            this.audioUrl = response.data.url;
+            this.downloadUrl = response.data.download_url;
+          } else {
+            this.errorMessage = 'Ses kaydı bulunamadı.';
+          }
+        },
+        () => {
+          this.loading = false;
+          this.errorMessage = 'Ses kaydı yüklenemedi.';
+        }
+      );
     }
   }
 }

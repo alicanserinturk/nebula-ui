@@ -126,19 +126,11 @@
 					<el-table-column width="70" align="right">
 						<template slot-scope="scope">
 							<button
+								v-if="scope.row.up_at"
 								@click="showFile(scope.row)"
 								class="btn btn-light btn-rounded btn-icon i-con-h-a"
 							>
-								<ion-icon
-									v-if="scope.row.sound_file_size !== 0"
-									class="text-muted"
-									name="play"
-								></ion-icon>
-								<ion-icon
-									v-else
-									class="text-muted"
-									name="hourglass-outline"
-								></ion-icon>
+								<ion-icon class="text-muted" name="play"></ion-icon>
 							</button>
 						</template>
 					</el-table-column>
@@ -180,33 +172,21 @@
 					</div>
 					<div class="col-md-auto pr-4">
 						<a
-							:disabled="item.sound_file_size === 0"
-							target="_blank"
-							:href="currentUser.servers.media + item.sound_file_url"
+							v-if="downloadUrl"
+							:href="downloadUrl"
 							class="btn mr-2 btn-light btn-rounded"
-							:download="item.sound_file_url + '.vaw'"
-							>İndir &bull;
-							{{ (item.sound_file_size / 1024 / 1024).toFixed(2) }} Mb
-							<i class="el-icon-download"></i
+							>İndir <i class="el-icon-download"></i
 						></a>
 					</div>
 				</div>
 			</template>
-			<div class="px-2" slot="footer">
-				<app-audio
-					v-if="item.sound_file_size !== 0"
-					:src="currentUser.servers.media + item.sound_file_url"
-				></app-audio>
-				<div v-else class="text-center">
-					<app-svg
-						class="mx-auto col-4"
-						src="/assets/img/vectors/upload.svg"
-					></app-svg>
-					<h5 class="font-weight-bold">Yükleme devam ediyor</h5>
-					<span
-						>Ses kaydı bulut ortamına yükleniyor bu işlem uzun zaman alabilir,
-						ses dosyası aktarıldığında dinleyebilirsiniz.</span
-					>
+			<div class="px-2">
+				<app-audio v-if="audioUrl" :src="audioUrl"></app-audio>
+				<div v-else-if="loading" class="text-center text-muted py-3">
+					<i class="el-icon-loading mr-1"></i> Ses kaydı hazırlanıyor...
+				</div>
+				<div v-else-if="errorMessage" class="text-center text-muted py-3">
+					{{ errorMessage }}
 				</div>
 			</div>
 		</el-dialog>
@@ -215,15 +195,17 @@
 <script>
 import { mapGetters } from "vuex";
 import moment from "moment";
+import API from "@/utils/API";
 
 export default {
 	data() {
 		return {
 			fileModalVisible: false,
 			item: null,
-			audio: {
-				source: "",
-			},
+			audioUrl: null,
+			downloadUrl: null,
+			loading: false,
+			errorMessage: null,
 			options: {},
 			filters: {
 				start_at: {
@@ -283,7 +265,27 @@ export default {
 	methods: {
 		showFile(item) {
 			this.item = item;
+			this.audioUrl = null;
+			this.downloadUrl = null;
+			this.errorMessage = null;
+			this.loading = true;
 			this.fileModalVisible = true;
+
+			API.get('media/sound/play', { cid: item.asterisk_id },
+				(response) => {
+					this.loading = false;
+					if (response && response.data && response.data.url) {
+						this.audioUrl = response.data.url;
+						this.downloadUrl = response.data.download_url;
+					} else {
+						this.errorMessage = 'Ses kaydı bulunamadı.';
+					}
+				},
+				() => {
+					this.loading = false;
+					this.errorMessage = 'Ses kaydı yüklenemedi.';
+				}
+			);
 		},
 		showCrm(id) {
 			this.crm.visible = true;

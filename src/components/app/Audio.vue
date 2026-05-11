@@ -1,27 +1,27 @@
 <template>
-	<div>
-		<!--<div class="row" v-if="showWave">
-      <av-waveform
-        noplayed-line-color="#999999"
-        :noplayed-line-width="0.5"
-        played-line-color="#111111"
-        :played-line-width="0.5"
-        :audio-controls="false"
-        :playtime="false"
-        :audio-src="audio.src"
-      ></av-waveform>
-    </div>-->
-		<div v-if="!loaded && !error">
-			Yükleniyor
+	<div class="app-player-wrap">
+		<div v-if="!loaded && !error" class="app-player-loading">
+			<i class="el-icon-loading mr-1"></i> Yükleniyor...
 		</div>
-		<div class="app-player row row-xs" v-else-if="!error">
-			<div class="col-auto i-con-h-a pointer" @click="play" v-if="paused">
-				<ion-icon name="play-outline"></ion-icon>
+
+		<div v-else-if="!error" class="app-player">
+			<!-- Equalizer — çalarken hareketli mavi, durduğunda sabit dalgalı gri. -->
+			<div v-if="type === 'default'" class="app-player-eq" :class="{ 'is-playing': !paused }">
+				<span class="bar"></span>
+				<span class="bar"></span>
+				<span class="bar"></span>
+				<span class="bar"></span>
+				<span class="bar"></span>
+				<span class="bar"></span>
+				<span class="bar"></span>
+				<span class="bar"></span>
+				<span class="bar"></span>
+				<span class="bar"></span>
+				<span class="bar"></span>
 			</div>
-			<div class="col-auto i-con-h-a pointer" @click="pause" v-else>
-				<ion-icon name="pause-outline"></ion-icon>
-			</div>
-			<div class="col px-3">
+
+			<!-- Progress slider + zaman göstergesi -->
+			<div class="app-player-progress">
 				<el-slider
 					input-size="mini"
 					@input="toTime"
@@ -29,61 +29,74 @@
 					:step="1"
 					size="mini"
 					:min="0"
-					:max="audio.duration"
+					:max="audio.duration || 0"
+					:show-tooltip="false"
 				></el-slider>
+				<div v-if="type === 'default'" class="app-player-times">
+					<small>{{ formatTime(currentTime) }}</small>
+					<small class="text-muted">{{ formatTime(audio.duration) }}</small>
+				</div>
 			</div>
-			<template v-if="type === 'default'">
-				<div class="col-auto">
-					<small class="d-inline-block" style="min-width: 60px;"
-						>{{ Math.floor(currentTime / 60) }}:{{
-							(currentTime % 60).toFixed(0)
-						}}
-						/ {{ Math.floor(audio.duration / 60) }}:{{
-							(audio.duration % 60).toFixed(0)
-						}}</small
-					>
-					<small>{{ audio.playbackRate }}X </small>
-				</div>
-				<div class="col-auto i-con-h-a pointer" @click="speedDown">
+
+			<!-- Kontrol butonları -->
+			<div class="app-player-controls">
+				<button
+					v-if="type === 'default'"
+					class="app-player-btn app-player-btn-secondary"
+					@click="speedDown"
+					title="Yavaşlat"
+				>
 					<ion-icon name="play-back-outline"></ion-icon>
-				</div>
-				<div class="col-auto i-con-h-a pointer" @click="speedUp">
+				</button>
+
+				<button class="app-player-btn app-player-btn-main" @click="paused ? play() : pause()">
+					<ion-icon v-if="paused" name="play"></ion-icon>
+					<ion-icon v-else name="pause"></ion-icon>
+				</button>
+
+				<button
+					v-if="type === 'default'"
+					class="app-player-btn app-player-btn-secondary"
+					@click="speedUp"
+					title="Hızlandır"
+				>
 					<ion-icon name="play-forward-outline"></ion-icon>
-				</div>
-				<div class="col-auto i-con-h-a pointer" @click="mute" v-if="!muted">
-					<ion-icon name="volume-high-outline"></ion-icon>
-				</div>
-				<div class="col-auto i-con-h-a pointer" @click="unmute" v-else>
-					<ion-icon name="volume-mute-outline"></ion-icon>
-				</div>
-			</template>
+				</button>
+
+				<template v-if="type === 'default'">
+					<span class="app-player-rate">{{ audio.playbackRate }}x</span>
+
+					<button
+						class="app-player-btn app-player-btn-secondary"
+						@click="muted ? unmute() : mute()"
+						:title="muted ? 'Sesi aç' : 'Sustur'"
+					>
+						<ion-icon v-if="!muted" name="volume-high-outline"></ion-icon>
+						<ion-icon v-else name="volume-mute-outline"></ion-icon>
+					</button>
+				</template>
+			</div>
 		</div>
-		<div class="d-inline-block text-left" v-else>
+
+		<div v-else class="app-player-error">
 			<el-tooltip
 				class="item"
 				effect="dark"
 				:content="src ? src : 'Bağlantı girilmedi.'"
 				placement="top"
 			>
-				<span>Ses dosyası oynatılamıyor.</span>
+				<span><i class="el-icon-warning-outline mr-1"></i>Ses dosyası oynatılamıyor.</span>
 			</el-tooltip>
 		</div>
 	</div>
 </template>
+
 <script>
 export default {
 	props: {
-		src: {
-			required: true,
-		},
-		showWave: {
-			required: false,
-			default: true,
-		},
-		type: {
-			required: false,
-			default: "default",
-		},
+		src: { required: true },
+		showWave: { required: false, default: true },
+		type: { required: false, default: "default" },
 	},
 	data() {
 		return {
@@ -95,22 +108,11 @@ export default {
 			currentTime: 0,
 		};
 	},
-	mounted() {},
 	created() {
 		this.setup();
 	},
 	beforeDestroy() {
 		this.pause();
-	},
-	computed: {
-		time: {
-			get() {
-				return this.currentTime;
-			},
-			set(value) {
-				this.audio.currentTime = parseInt(value);
-			},
-		},
 	},
 	watch: {
 		src() {
@@ -122,18 +124,20 @@ export default {
 	methods: {
 		setup() {
 			this.audio = new window.Audio(this.src);
-			this.audio.onerror = (e) => {
+			this.audio.onerror = () => {
 				this.error = true;
 			};
-			this.audio.onloadeddata = (e) => {
+			this.audio.onloadeddata = () => {
 				this.loaded = true;
 			};
 			this.audio.preload = true;
-			this.audio.ontimeupdate = (e) => {
-				if (e.path[0].currentTime === e.path[0].duration) {
+			this.audio.ontimeupdate = () => {
+				if (this.audio.currentTime === this.audio.duration) {
 					this.currentTime = 0;
 					this.paused = true;
-				} else this.currentTime = e.path[0].currentTime;
+				} else {
+					this.currentTime = this.audio.currentTime;
+				}
 			};
 		},
 		play() {
@@ -153,31 +157,212 @@ export default {
 			this.muted = false;
 		},
 		speedUp() {
-			this.audio.playbackRate = this.audio.playbackRate * 2;
+			this.audio.playbackRate = Math.min(this.audio.playbackRate * 2, 4);
 		},
 		speedDown() {
-			this.audio.playbackRate = this.audio.playbackRate / 2;
+			this.audio.playbackRate = Math.max(this.audio.playbackRate / 2, 0.25);
 		},
 		toTime(time) {
-			if (isNaN(time)) {
-				time = 0;
-			}
-			if (time !== this.currentTime)
+			if (isNaN(time)) time = 0;
+			if (time !== this.currentTime) {
 				this.audio.currentTime = parseInt(Math.floor(time));
+			}
+		},
+		formatTime(seconds) {
+			if (!seconds || isNaN(seconds)) return "0:00";
+			const m = Math.floor(seconds / 60);
+			const s = Math.floor(seconds % 60);
+			return `${m}:${s.toString().padStart(2, "0")}`;
 		},
 	},
 };
 </script>
-<style>
-.app-player ion-icon {
-	font-size: 20px;
-	line-height: 34px;
+
+<style scoped>
+.app-player-wrap {
+	width: 100%;
 }
 
-.app-player .el-slider {
-	margin-top: -8px;
+.app-player-loading,
+.app-player-error {
+	text-align: center;
+	padding: 20px 0;
+	color: #7f8c9a;
+	font-size: 14px;
 }
 
-.app-player .el-slider__runway {
+.app-player {
+	/* arka plan yok — sadece kontrol satırı kartlı */
+}
+
+/* Equalizer — büyük, merkezi, pasifte sabit dalga */
+.app-player-eq {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 8px;
+	height: 96px;
+	margin: 8px auto 35px;
+}
+
+.app-player-eq .bar {
+	display: inline-block;
+	width: 6px;
+	height: 100%;
+	background: #c7d0db;
+	border-radius: 3px;
+	transform-origin: center;
+	transition: background 0.3s ease, transform 0.4s ease;
+}
+
+/* Pasif (duraklatılmış) — her bar farklı yükseklikte, statik dalga formu */
+.app-player-eq .bar:nth-child(1)  { transform: scaleY(0.30); }
+.app-player-eq .bar:nth-child(2)  { transform: scaleY(0.55); }
+.app-player-eq .bar:nth-child(3)  { transform: scaleY(0.80); }
+.app-player-eq .bar:nth-child(4)  { transform: scaleY(0.50); }
+.app-player-eq .bar:nth-child(5)  { transform: scaleY(0.95); }
+.app-player-eq .bar:nth-child(6)  { transform: scaleY(0.65); }
+.app-player-eq .bar:nth-child(7)  { transform: scaleY(0.85); }
+.app-player-eq .bar:nth-child(8)  { transform: scaleY(0.45); }
+.app-player-eq .bar:nth-child(9)  { transform: scaleY(0.70); }
+.app-player-eq .bar:nth-child(10) { transform: scaleY(0.40); }
+.app-player-eq .bar:nth-child(11) { transform: scaleY(0.25); }
+
+/* Aktif (çalarken) — animasyon devreye girer, statik transform'lar override edilir */
+.app-player-eq.is-playing .bar {
+	background: linear-gradient(180deg, #4f8cff 0%, #2d6cdf 100%);
+	animation: app-player-eq-bounce 0.9s ease-in-out infinite;
+	transition: background 0.3s ease;
+}
+
+.app-player-eq.is-playing .bar:nth-child(1)  { animation-delay: 0.00s; }
+.app-player-eq.is-playing .bar:nth-child(2)  { animation-delay: 0.12s; }
+.app-player-eq.is-playing .bar:nth-child(3)  { animation-delay: 0.24s; }
+.app-player-eq.is-playing .bar:nth-child(4)  { animation-delay: 0.06s; }
+.app-player-eq.is-playing .bar:nth-child(5)  { animation-delay: 0.18s; }
+.app-player-eq.is-playing .bar:nth-child(6)  { animation-delay: 0.30s; }
+.app-player-eq.is-playing .bar:nth-child(7)  { animation-delay: 0.09s; }
+.app-player-eq.is-playing .bar:nth-child(8)  { animation-delay: 0.21s; }
+.app-player-eq.is-playing .bar:nth-child(9)  { animation-delay: 0.15s; }
+.app-player-eq.is-playing .bar:nth-child(10) { animation-delay: 0.27s; }
+.app-player-eq.is-playing .bar:nth-child(11) { animation-delay: 0.03s; }
+
+@keyframes app-player-eq-bounce {
+	0%, 100% { transform: scaleY(0.2); }
+	50% { transform: scaleY(1); }
+}
+
+/* Progress */
+.app-player-progress {
+	margin-bottom: 12px;
+}
+
+.app-player-times {
+	display: flex;
+	justify-content: space-between;
+	margin-top: 4px;
+	font-size: 12px;
+	color: #6b7888;
+}
+
+/* Kontrol satırı — kartlı arka plan sadece burada */
+.app-player-controls {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 12px;
+	background: linear-gradient(135deg, #f6f8fb 0%, #eef2f7 100%);
+	border-radius: 999px;
+	padding: 10px 18px;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+	margin: 0 auto;
+	width: fit-content;
+}
+
+.app-player-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border: none;
+	cursor: pointer;
+	transition: transform 0.15s ease, background 0.2s ease, box-shadow 0.2s ease;
+	padding: 0;
+}
+
+.app-player-btn:focus {
+	outline: none;
+}
+
+.app-player-btn ion-icon {
+	display: block;
+}
+
+.app-player-btn-main {
+	width: 48px;
+	height: 48px;
+	border-radius: 50%;
+	background: linear-gradient(135deg, #4f8cff 0%, #2d6cdf 100%);
+	color: #fff;
+	box-shadow: 0 4px 12px rgba(45, 108, 223, 0.35);
+}
+
+.app-player-btn-main ion-icon {
+	font-size: 22px;
+	margin-left: 1px; /* play ikonu görsel hizalama */
+}
+
+.app-player-btn-main:hover {
+	transform: scale(1.06);
+	box-shadow: 0 6px 16px rgba(45, 108, 223, 0.45);
+}
+
+.app-player-btn-main:active {
+	transform: scale(0.96);
+}
+
+.app-player-btn-secondary {
+	width: 34px;
+	height: 34px;
+	border-radius: 50%;
+	background: #ffffff;
+	color: #5a6677;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.app-player-btn-secondary ion-icon {
+	font-size: 16px;
+}
+
+.app-player-btn-secondary:hover {
+	background: #f0f4fa;
+	color: #2d6cdf;
+}
+
+.app-player-rate {
+	min-width: 36px;
+	text-align: center;
+	font-size: 13px;
+	font-weight: 600;
+	color: #5a6677;
+}
+
+/* Element slider overrides */
+.app-player >>> .el-slider__runway {
+	background: #d8e0eb;
+	height: 6px;
+	border-radius: 3px;
+	margin: 8px 0;
+}
+
+.app-player >>> .el-slider__bar {
+	background: linear-gradient(90deg, #4f8cff, #2d6cdf);
+	height: 6px;
+	border-radius: 3px;
+}
+
+.app-player >>> .el-slider__button {
+	border-color: #2d6cdf;
+	width: 14px;
+	height: 14px;
 }
 </style>
