@@ -106,6 +106,12 @@ export default {
 	components: {
 		apexchart: VueApexCharts,
 	},
+	props: {
+		data: {
+			type: Object,
+			default: () => ({}),
+		},
+	},
 	data() {
 		return {
 			types: {
@@ -130,7 +136,6 @@ export default {
 				{ color: "#007bff", percentage: 50 },
 			],
 			activeTab: "count",
-			items: {},
 			days: [],
 			dates: {
 				this: [],
@@ -252,16 +257,15 @@ export default {
 					},
 				},
 			},
-			loading: {
-				agent: true,
-				manager: true,
-			},
 		};
 	},
 	computed: {
 		...mapGetters(["currentUser"]),
 		f() {
 			return formatter;
+		},
+		items() {
+			return this.data || {};
 		},
 		getTotalInboundCounts() {
 			let count = 0;
@@ -306,12 +310,19 @@ export default {
 	watch: {
 		filter: {
 			deep: true,
+			handler(newFilter, oldFilter) {
+				if (newFilter.interval !== oldFilter.interval) {
+					this.$emit("filter-change", { ...newFilter });
+				} else {
+					this.getChartData();
+				}
+			},
+		},
+		data: {
+			deep: true,
 			handler() {
 				this.getDays();
 			},
-		},
-		activeTab() {
-			this.getDays();
 		},
 	},
 	methods: {
@@ -440,20 +451,7 @@ export default {
 				this.dates.before = beforeDays;
 				this.dates.this = thisDays;
 			}
-			this.get();
-		},
-		get() {
-			this.loading.manager = true;
-			this.$api.get(
-				"dashboard/for-manager",
-				this.filter,
-				(response) => {
-					this.items = response.data.data;
-					this.getChartData();
-					this.loading.manager = false;
-				},
-				(code, response) => {}
-			);
+			this.getChartData();
 		},
 		getChartCategories() {
 			if (this.filter.interval === "daily") {
@@ -505,6 +503,7 @@ export default {
 			}
 		},
 		getChartData() {
+			if (!this.items.call) return;
 			let charts = ["count", "time"];
 			charts.forEach((chartKey) => {
 				let direction = this.filter.direction === "in" ? "inbound" : "outbound";
