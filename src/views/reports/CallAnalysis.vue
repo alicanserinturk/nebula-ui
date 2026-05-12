@@ -116,6 +116,7 @@
 </template>
 <script>
 import VueApexCharts from "vue-apexcharts";
+import moment from "moment";
 
 export default {
 	components: {
@@ -128,7 +129,7 @@ export default {
 				direction: "in",
 				user_id: null,
 				number_id: null,
-				start_at: null,
+				start_at: [moment().format("YYYY-MM-DD"), moment().format("YYYY-MM-DD")],
 			},
 			data: [],
 			chartVisible: false,
@@ -174,7 +175,6 @@ export default {
 	computed: {
 		getSuccessCount() {
 			let count = 0;
-            console.log(this.data)
 			if (this.data.evaluation_code) {
 				this.data.evaluation_code.forEach((item) => {
 					if (item.is_success === true) count = item.count;
@@ -208,7 +208,7 @@ export default {
 		getData() {
             this.loading = true;
             this.chartVisible = false;
-			this.$api.get("reports/call-analize", this.filter, (response) => {
+			this.$api.get("reports/result-code-analysis", this.filter, (response) => {
 				this.data = response.data.data;
 				this.series[0].data = [];
 				this.chartOptions.xaxis.categories = [];

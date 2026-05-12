@@ -194,6 +194,13 @@ export default {
               href: '/reports/call-analysis',
             },
             {
+              id: 44,
+              key: 'call_recording_report',
+              title: this.$t('menu.modules.call_recording_report.title'),
+              icon: 'musical-notes-outline',
+              href: '/reports/sound-record',
+            },
+            {
               id: 60,
               key: 'crm_form_report',
               title: this.$t('menu.modules.crm_form_report.title'),

@@ -4,7 +4,8 @@
 		<app-module-body>
 			<app-table
 				:downloadable="true"
-				endpoint="reports/no-answer-calls"
+				:searchable="false"
+				endpoint="reports/missed-calls"
 				:options="options"
 				vector="report"
 				:filters="filters"
@@ -34,11 +35,25 @@
 							<small class="sub-item text-muted">
 								<span v-if="scope.row.direction === 'in'">Gelen</span>
 								<span v-else>Giden</span>
-                                <span class="ml-1">{{scope.row.ring_time}} sn</span>
-								<span class="ml-2" v-if="scope.row.user"
-									><ion-icon name="person-outline" class="mr-1"></ion-icon
-									>{{ scope.row.user.name }} {{ scope.row.user.surname }}</span
+                                <span class="ml-1">{{ Math.round((scope.row.ring_time || 0) / 1000) }} sn</span>
+								<el-tooltip
+									v-if="scope.row.user"
+									placement="top"
+									effect="dark"
 								>
+									<template slot="content">
+										<div v-for="(ev, i) in scope.row.events" :key="i">
+											<span v-if="ev.user">{{ ev.user.name }} {{ ev.user.surname }}</span>
+											<span v-else>-</span>
+											<span class="ml-1">— {{ Math.round((ev.ring_time || 0) / 1000) }} sn yanıtlamadı</span>
+										</div>
+									</template>
+									<span class="ml-2">
+										<ion-icon name="person-outline" class="mr-1"></ion-icon>
+										{{ scope.row.user.name }} {{ scope.row.user.surname }}
+										<small v-if="scope.row.attempts > 1" class="text-muted">+{{ scope.row.attempts - 1 }}</small>
+									</span>
+								</el-tooltip>
 								<span class="ml-2" v-if="scope.row.queue"
 									><ion-icon name="cellular-outline" class="mr-1"></ion-icon
 									>{{ scope.row.queue.name }}</span
@@ -51,11 +66,12 @@
 						</template>
 					</el-table-column>
                 
-                    <el-table-column width="120px" align="right" label="Sonuç">
+                    <el-table-column width="210px" align="right" label="Sonuç">
 						<template slot-scope="scope">
-							<span v-if="scope.row.is_success" class="badge bg-success-lt badge-md badge-pill"
-								>Tekrar Ulaşıldı</span
-							>
+							<span v-if="scope.row.is_success" class="badge bg-success-lt badge-md badge-pill">
+								Tekrar Ulaşabildi
+								<template v-if="scope.row.attempts > 1"> ({{ scope.row.attempts }}. deneme)</template>
+							</span>
 							<span v-else class="badge badge-pill bg-danger-lt badge-md">Kaçan Çağrı</span>
 						</template>
 					</el-table-column>
@@ -72,6 +88,8 @@
 	</app-module>
 </template>
 <script>
+import moment from "moment";
+
 export default {
 	data() {
 		return {
@@ -80,7 +98,7 @@ export default {
 				date: {
 					name: "Tarih",
 					type: "daterange",
-					value: null,
+					value: [moment().format("YYYY-MM-DD"), moment().format("YYYY-MM-DD")],
 					options: [],
 					required: false,
 				},

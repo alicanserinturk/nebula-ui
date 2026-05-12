@@ -4,7 +4,7 @@
 		<app-module-body>
 			<app-table
 				:downloadable="true"
-				endpoint="reports/agent/:user_id/state-detail"
+				endpoint="reports/agent/:user_id/state-history"
 				vector="report"
 				:filters="filters"
 			>
@@ -49,6 +49,7 @@
 </template>
 <script>
 import formatter from "@/utils/Formatters";
+import moment from "moment";
 
 export default {
 	data() {
@@ -65,7 +66,7 @@ export default {
 				date: {
 					name: "Tarih",
 					type: "daterange",
-					value: "",
+					value: [moment().format("YYYY-MM-DD"), moment().format("YYYY-MM-DD")],
 					options: [],
 				},
 			},

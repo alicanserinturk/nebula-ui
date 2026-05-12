@@ -4,6 +4,7 @@
 		<app-module-body>
 			<app-table
 				:downloadable="true"
+				:searchable="false"
 				archivable
 				endpoint="reports/crm/forms"
 				:options="options"
@@ -20,7 +21,7 @@
 				</el-table-column>
 				<el-table-column label="Müşteri" fixed="left">
 					<template slot-scope="scope">
-						{{scope.row.contact.number}}
+						{{scope.row.contact.phone}}
 					</template>
 				</el-table-column>
 				<el-table-column v-for="(field, index) in fields" :key="'field-' + index" :label="field.label">
@@ -41,6 +42,7 @@
 </template>
 <script>
 import { mapGetters } from "vuex";
+import moment from "moment";
 
 export default {
 	data() {
@@ -55,6 +57,12 @@ export default {
 					value: null,
 					options: [],
 					required: true,
+				},
+				start_at: {
+					name: "Tarih",
+					type: "daterange",
+					value: [moment().format("YYYY-MM-DD"), moment().format("YYYY-MM-DD")],
+					options: [],
 				},
 			},
 		};

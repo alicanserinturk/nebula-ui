@@ -4,7 +4,7 @@
 
     </app-module-header>
     <app-module-body>
-      <app-table :downloadable="true" archivable endpoint="reports/sound" :options="options" vector="report">
+      <app-table :downloadable="true" archivable endpoint="reports/sound" :options="options" :filters="filters" vector="report">
         <el-table-column width="60" align="center">
           <template slot-scope="scope">
             <button @click="showFile(scope.row)" class="btn btn-light btn-rounded btn-icon i-con-h-a">
@@ -90,6 +90,7 @@
 <script>
 import {mapGetters} from "vuex";
 import API from "@/utils/API";
+import moment from "moment";
 
 export default {
   data() {
@@ -101,6 +102,42 @@ export default {
       downloadUrl: null,
       loading: false,
       errorMessage: null,
+      filters: {
+        start_at: {
+          name: "Tarih",
+          type: "daterange",
+          value: [moment().format("YYYY-MM-DD"), moment().format("YYYY-MM-DD")],
+          options: [],
+        },
+        user_id: {
+          name: "Kullanıcı",
+          type: "user",
+          value: null,
+          options: [],
+        },
+        queue_id: {
+          name: "Arama Grubu",
+          type: "queue",
+          value: null,
+          options: [],
+        },
+        number_id: {
+          name: "Numara",
+          type: "number",
+          value: null,
+          options: [],
+        },
+        direction: {
+          name: "Yön",
+          type: "primary",
+          value: null,
+          options: [
+            { name: "Tümü", value: null },
+            { name: "Gelen", value: "in" },
+            { name: "Giden", value: "out" },
+          ],
+        },
+      },
     }
   },
   computed: {

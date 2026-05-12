@@ -35,7 +35,7 @@
 			<app-table
 				:downloadable="true"
 				:before-download="download"
-				endpoint="reports/outbound-call-analize"
+				endpoint="reports/outbound-analysis"
 				:options="options"
 				vector="report"
 				:filters="filters"
@@ -55,54 +55,25 @@
 					<el-table-column label="Başarılı">
 						<template slot-scope="scope">
 							{{ scope.row.count.answer }}
-							<span class="sub-item text-muted"
-								><span v-if="scope.row.sum.answer">{{
-									scope.row.sum.answer
-								}}</span
-								><span v-else>00:00:00</span></span
-							>
+							<span class="sub-item text-muted">{{ scope.row.sum.answer }}</span>
 						</template>
 					</el-table-column>
-					<el-table-column label="Çalma Süresi">
+					<el-table-column label="Ulaşılamayan">
 						<template slot-scope="scope">
-							{{ scope.row.count.ivr }}
-							<span class="sub-item text-muted"
-								><span v-if="scope.row.sum.ringing">{{ scope.row.sum.ringing }}</span
-								><span v-else>00:00:00</span></span
-							>
-						</template>
-					</el-table-column>
-					<el-table-column label="Abondan">
-						<template slot-scope="scope">
-							{{ scope.row.count.abondan }}
-							<span class="sub-item text-muted"
-								><span v-if="scope.row.sum.abondan">{{
-									scope.row.sum.abondan
-								}}</span
-								><span v-else>00:00:00</span></span
-							>
+							{{ scope.row.count.unreachable }}
+							<span class="sub-item text-muted">{{ scope.row.sum.unreachable }}</span>
 						</template>
 					</el-table-column>
 					<el-table-column label="Cevapsız">
 						<template slot-scope="scope">
 							{{ scope.row.count.unanswered }}
-							<span class="sub-item text-muted"
-								><span v-if="scope.row.sum.unanswered">{{
-									scope.row.sum.unanswered
-								}}</span
-								><span v-else>00:00:00</span></span
-							>
+							<span class="sub-item text-muted">{{ scope.row.sum.unanswered }}</span>
 						</template>
 					</el-table-column>
 					<el-table-column label="Toplam">
 						<template slot-scope="scope">
 							{{ scope.row.count.total }}
-							<span class="sub-item text-muted"
-								><span v-if="scope.row.sum.total">{{
-									scope.row.sum.total
-								}}</span
-								><span v-else>00:00:00</span></span
-							>
+							<span class="sub-item text-muted">{{ scope.row.sum.total }}</span>
 						</template>
 					</el-table-column>
 				</template>
@@ -124,37 +95,13 @@ export default {
 				count: {
 					visible: false,
 					options: {
-						grid: {
-							show: false,
-						},
-						chart: {
-							height: 350,
-							type: "area",
-						},
-						dataLabels: {
-							enabled: false,
-						},
-						stroke: {
-							curve: "smooth",
-							show: true,
-							width: 2,
-						},
-						yaxis: {
-							type: "datetime",
-							categories: [
-								"2012-21-01",
-								"2012-21-02",
-								"2012-21-03",
-								"2012-21-04",
-								"2012-21-05",
-								"2012-21-06",
-								"2012-21-07",
-							],
-						},
-						tooltip: {
-							x: {
-								format: "dd MMMM yy",
-							},
+						grid: { show: false },
+						chart: { height: 350, type: "area" },
+						dataLabels: { enabled: false },
+						stroke: { curve: "smooth", show: true, width: 2 },
+						xaxis: {
+							type: "category",
+							categories: [],
 						},
 						fill: {
 							gradient: {
@@ -175,44 +122,24 @@ export default {
 				sum: {
 					visible: false,
 					options: {
-						grid: {
-							show: false,
-						},
-						chart: {
-							height: 350,
-							type: "area",
-						},
-						dataLabels: {
-							enabled: false,
-						},
-						stroke: {
-							curve: "smooth",
-							show: true,
-							width: 2,
-						},
+						grid: { show: false },
+						chart: { height: 350, type: "area" },
+						dataLabels: { enabled: false },
+						stroke: { curve: "smooth", show: true, width: 2 },
 						xaxis: {
-							type: "datetime",
+							type: "category",
 							categories: [],
-							labels: {
-								datetimeFormatter: {
-									year: "yyyy",
-									month: "MMM 'yy",
-									day: "dd MMM",
-									hour: "HH:mm",
-								},
-							},
 						},
-
 						yaxis: {
 							labels: {
 								formatter: function(value) {
-									return new Date(value * 1000).toISOString().substr(11, 8);
+									const seconds = Math.max(0, Math.floor(Number(value) || 0));
+									const h = Math.floor(seconds / 3600);
+									const m = Math.floor((seconds % 3600) / 60);
+									const s = seconds % 60;
+									const pad = (n) => String(n).padStart(2, "0");
+									return `${pad(h)}:${pad(m)}:${pad(s)}`;
 								},
-							},
-						},
-						tooltip: {
-							x: {
-								format: "dd MMMM yy",
 							},
 						},
 						fill: {
@@ -253,12 +180,6 @@ export default {
 					value: null,
 					options: [],
 				},
-				queue_id: {
-					name: "Kuyruk",
-					type: "queue",
-					value: null,
-					options: [],
-				},
 				interval: {
 					name: "Periyot",
 					type: "primary",
@@ -282,17 +203,19 @@ export default {
 		download(data){
 			let arr = [];
 			data.forEach((item) => {
-				let cache = {};
-				cache.date = item.date ? item.date : "";
-				cache.count_answer = item.count.answer ? item.count.answer : "";
-				cache.count_total = item.count.total ? item.count.total : "";
-				cache.count_unanswered = item.count.unanswered ? item.count.unanswered : "";
-				cache.count_unreachable = item.count.unreachable ? item.count.unreachable : "";
-				cache.sum_answer = item.sum.answer ? item.sum.answer : "";
-				cache.sum_calling = item.sum.calling ? item.sum.calling : "";
-				cache.sum_ringing = item.sum.ringing ? item.sum.ringing : "";
-				cache.sum_total = item.sum.total ? item.sum.total : "";
-				arr.push(cache);
+				arr.push({
+					date: item.date || "",
+					count_answer: item.count.answer || 0,
+					count_unreachable: item.count.unreachable || 0,
+					count_unanswered: item.count.unanswered || 0,
+					count_total: item.count.total || 0,
+					sum_answer: item.sum.answer || "00:00:00",
+					sum_calling: item.sum.calling || "00:00:00",
+					sum_ringing: item.sum.ringing || "00:00:00",
+					sum_unreachable: item.sum.unreachable || "00:00:00",
+					sum_unanswered: item.sum.unanswered || "00:00:00",
+					sum_total: item.sum.total || "00:00:00",
+				});
 			});
 			return arr;
 		},
@@ -312,70 +235,47 @@ export default {
 		},
 		handle(data) {
 			let count = [
-				{
-					name: "Başarılı",
-					data: [],
-					color: "#00E396"
-				},
-				{
-					name: "Ivr",
-					data: [],
-					color: "#008FFB"
-				},
-				{
-					name: "Abondan",
-					data: [],
-					color: "#FFB01A"
-				},
-				{
-					name: "Cevapsız",
-					data: [],
-					color: "#FF4560"
-				},
+				{ name: "Başarılı", data: [], color: "#00E396" },
+				{ name: "Ulaşılamayan", data: [], color: "#FFB01A" },
+				{ name: "Cevapsız", data: [], color: "#FF4560" },
 			];
 			let sum = [
-				{
-					name: "Başarılı",
-					data: [],
-					color: "#00E396"
-				},
-				{
-					name: "Ivr",
-					data: [],
-					color: "#008FFB"
-				},
-				{
-					name: "Abondan",
-					data: [],
-					color: "#FFB01A"
-				},
-				{
-					name: "Cevapsız",
-					data: [],
-					color: "#FF4560"
-				},
+				{ name: "Başarılı", data: [], color: "#00E396" },
+				{ name: "Ulaşılamayan", data: [], color: "#FFB01A" },
+				{ name: "Cevapsız", data: [], color: "#FF4560" },
 			];
+			let dates = [];
 			data.data.forEach((element) => {
-				count[0].data.push(element.count.answer ? element.count.answer : 0);
-				count[1].data.push(element.count.ivr ? element.count.ivr : 0);
-				count[2].data.push(element.count.abondan ? element.count.abondan : 0);
-				count[3].data.push(
-					element.count.unanswered ? element.count.unanswered : 0
-				);
-				sum[0].data.push(element.sum.answer ? element.sum.answer : '00:00:00');
-				sum[1].data.push(element.sum.ivr ? element.sum.ivr : '00:00:00');
-				sum[2].data.push(element.sum.abondan ? element.sum.abondan : '00:00:00');
-				sum[3].data.push(element.sum.unanswered ? element.sum.unanswered : '00:00:00');
+				dates.push(element.date);
+				count[0].data.push(element.count.answer || 0);
+				count[1].data.push(element.count.unreachable || 0);
+				count[2].data.push(element.count.unanswered || 0);
+				// Chart için ham saniye — yaxis formatter HH:MM:SS'e çevirir
+				sum[0].data.push(element.sum.answer_seconds || 0);
+				sum[1].data.push(element.sum.unreachable_seconds || 0);
+				sum[2].data.push(element.sum.unanswered_seconds || 0);
 			});
 
+			// Apex'in deep watcher'ı nested categories mutation'ını her zaman
+			// yakalamadığı için options'ı yeni reference olarak yeniden atıyoruz
+			// ve chart'ı bir tick için kapatıp açarak temiz remount sağlıyoruz.
 			this.charts.count.series = count;
-			this.charts.count.visible = true;
-
+			this.charts.count.options = {
+				...this.charts.count.options,
+				xaxis: { ...this.charts.count.options.xaxis, categories: dates },
+			};
 			this.charts.sum.series = sum;
-			this.charts.sum.visible = true;
+			this.charts.sum.options = {
+				...this.charts.sum.options,
+				xaxis: { ...this.charts.sum.options.xaxis, categories: dates },
+			};
 
-			console.log(this.charts.count.series);
-			console.log(this.charts.sum.series);
+			this.charts.count.visible = false;
+			this.charts.sum.visible = false;
+			this.$nextTick(() => {
+				this.charts.count.visible = true;
+				this.charts.sum.visible = true;
+			});
 		},
 	},
 };

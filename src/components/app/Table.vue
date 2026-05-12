@@ -447,7 +447,7 @@ export default {
         this.items = [];
         clearTimeout(this.search.timeout);
         this.search.timeout = setTimeout(() => {
-          this.getData();
+          this.checkFilters(() => this.getData());
         }, 1000);
       }
     },
@@ -456,11 +456,11 @@ export default {
       this.items = [];
       clearTimeout(this.search.timeout);
       this.search.timeout = setTimeout(() => {
-        this.getData();
+        this.checkFilters(() => this.getData());
       }, 1000);
     },
     '$route': function () {
-      this.getData();
+      this.checkFilters(() => this.getData());
     }
   },
   created() {
@@ -500,10 +500,18 @@ export default {
       //this.$router.push({ path: this.$route.path, query: filters});
     },
     checkFilters(handle = () => {}){
+      // Required ama henüz değer girilmemiş filtreleri topla. URL substitution
+      // ":user_id" gibi tokenları null'a "null" string'i koyacağı için, required
+      // filtre boşsa fetch'i engellemek zorunlu.
+      this.requiredFilters = [];
       Object.keys(this.filters).forEach(key => {
-        if(this.filters[key].required)
-        {
-          this.requiredFilters.push(this.filters[key]);
+        const f = this.filters[key];
+        const isEmpty = f.value === null
+          || f.value === undefined
+          || f.value === ''
+          || (Array.isArray(f.value) && f.value.length === 0);
+        if (f.required && isEmpty) {
+          this.requiredFilters.push(f);
         }
       });
       if(this.requiredFilters.length === 0){
@@ -688,7 +696,13 @@ export default {
       console.log("Filtre",self.filters,filters);
       let endpoint = this.endpoint;
       Object.keys(this.filters).forEach((key) => {
-        endpoint = endpoint.replace(':' + key, this.filters[key].value);
+        const value = this.filters[key].value;
+        // user/queue/number gibi tipler object döner ({id, name, ...}); URL token'ı
+        // için .id çıkarılmalı — yoksa replace "[object Object]" basar.
+        const tokenValue = (value && typeof value === 'object' && !Array.isArray(value))
+          ? value.id
+          : value;
+        endpoint = endpoint.replace(':' + key, tokenValue);
       });
       const params = {
         ...filters,

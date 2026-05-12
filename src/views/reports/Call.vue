@@ -70,54 +70,43 @@
 					<el-table-column width="310px" label="Süreler">
 						<template slot-scope="scope">
 							<div class="row mr-2">
-								<div class="col">
-									<span v-if="scope.row.direction === 'in'"
+								<div class="col" v-if="scope.row.direction === 'in'">
+									<span
 										><app-date-range-text
 											:start-date="scope.row.start_at"
-											:end-date="scope.row.queue_at"
+											:end-date="scope.row.queue_at || scope.row.hangup_at"
 										></app-date-range-text
 									></span>
-									<small
-										v-if="scope.row.direction === 'in'"
-										class="sub-item text-muted d-block"
-										>IVR</small
-									>
+									<small class="sub-item text-muted d-block">IVR</small>
 								</div>
-								<div class="col">
-									<span v-if="scope.row.direction === 'in'"
+								<div class="col" v-if="scope.row.direction === 'in'">
+									<span v-if="scope.row.queue_at"
 										><app-date-range-text
 											:start-date="scope.row.queue_at"
-											:end-date="scope.row.ringing_at"
+											:end-date="scope.row.ringing_at || scope.row.hangup_at"
 										></app-date-range-text
 									></span>
-									<small
-										v-if="scope.row.direction === 'in'"
-										class="sub-item text-muted d-block"
-										>Kuyruk</small
-									>
+									<span v-else>00:00</span>
+									<small class="sub-item text-muted d-block">Kuyruk</small>
 								</div>
 								<div class="col">
-									<span v-if="scope.row.up_at"
+									<span v-if="scope.row.ringing_at"
 										><app-date-range-text
 											:start-date="scope.row.ringing_at"
-											:end-date="scope.row.up_at"
+											:end-date="scope.row.up_at || scope.row.hangup_at"
 										></app-date-range-text
 									></span>
-									<span v-else
-										><app-date-range-text
-											:start-date="scope.row.ringing_at"
-											:end-date="scope.row.hangup_at"
-										></app-date-range-text
-									></span>
+									<span v-else>00:00</span>
 									<small class="sub-item text-muted d-block">Ringing</small>
 								</div>
 								<div class="col">
-									<span
+									<span v-if="scope.row.up_at"
 										><app-date-range-text
 											:start-date="scope.row.up_at"
 											:end-date="scope.row.hangup_at"
 										></app-date-range-text
 									></span>
+									<span v-else>00:00</span>
 									<small class="sub-item text-muted d-block">Konuşma</small>
 								</div>
 							</div>
@@ -237,6 +226,16 @@ export default {
 					type: "number",
 					value: null,
 					options: [],
+				},
+				direction: {
+					name: "Yön",
+					type: "primary",
+					value: null,
+					options: [
+						{ name: "Tümü", value: null },
+						{ name: "Gelen", value: "in" },
+						{ name: "Giden", value: "out" },
+					],
 				},
 				call_type: {
 					name: "Tür",

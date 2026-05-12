@@ -35,7 +35,7 @@
 			<app-table
 				:downloadable="true"
 				:before-download="download"
-				endpoint="reports/inbound-call-analize"
+				endpoint="reports/inbound-analysis"
 				:options="options"
 				vector="report"
 				:filters="filters"
@@ -140,13 +140,8 @@ export default {
 							width: 2,
 						},
 						xaxis: {
-							type: "date",
+							type: "category",
 							categories: [],
-						},
-						tooltip: {
-							x: {
-								format: "dd MMMM yy",
-							},
 						},
 						fill: {
 							gradient: {
@@ -183,19 +178,19 @@ export default {
 							width: 2,
 						},
 						xaxis: {
-							type: "date",
+							type: "category",
 							categories: [],
 						},
 						yaxis: {
 							labels: {
 								formatter: function(value) {
-									return new Date(value * 1000).toISOString().substr(11, 8);
+									const seconds = Math.max(0, Math.floor(Number(value) || 0));
+									const h = Math.floor(seconds / 3600);
+									const m = Math.floor((seconds % 3600) / 60);
+									const s = seconds % 60;
+									const pad = (n) => String(n).padStart(2, "0");
+									return `${pad(h)}:${pad(m)}:${pad(s)}`;
 								},
-							},
-						},
-						tooltip: {
-							x: {
-								format: "dd MMMM yy",
 							},
 						},
 						fill: {
@@ -265,17 +260,21 @@ export default {
 		download(data){
 			let arr = [];
 			data.forEach((item) => {
-				let cache = {};
-				cache.date = item.date ? item.date : "";
-				cache.count_answer = item.count.answer ? item.count.answer : "";
-				cache.count_total = item.count.total ? item.count.total : "";
-				cache.count_unanswered = item.count.unanswered ? item.count.unanswered : "";
-				cache.count_unreachable = item.count.unreachable ? item.count.unreachable : "";
-				cache.sum_answer = item.sum.answer ? item.sum.answer : "";
-				cache.sum_calling = item.sum.calling ? item.sum.calling : "";
-				cache.sum_ringing = item.sum.ringing ? item.sum.ringing : "";
-				cache.sum_total = item.sum.total ? item.sum.total : "";
-				arr.push(cache);
+				arr.push({
+					date: item.date || "",
+					count_answer: item.count.answer || 0,
+					count_ivr: item.count.ivr || 0,
+					count_abondan: item.count.abondan || 0,
+					count_unanswered: item.count.unanswered || 0,
+					count_total: item.count.total || 0,
+					sum_answer: item.sum.answer || "00:00:00",
+					sum_ivr: item.sum.ivr || "00:00:00",
+					sum_queue: item.sum.queue || "00:00:00",
+					sum_ringing: item.sum.ringing || "00:00:00",
+					sum_abondan: item.sum.abondan || "00:00:00",
+					sum_unanswered: item.sum.unanswered || "00:00:00",
+					sum_total: item.sum.total || "00:00:00",
+				});
 			});
 			return arr;
 		},
@@ -347,23 +346,33 @@ export default {
 				count[3].data.push(
 					element.count.unanswered ? element.count.unanswered : 0
 				);
-				sum[0].data.push(element.sum.answer ? element.sum.answer : "00:00:00");
-				sum[1].data.push(element.sum.ivr ? element.sum.ivr : "00:00:00");
-				sum[2].data.push(
-					element.sum.abondan ? element.sum.abondan : "00:00:00"
-				);
-				sum[3].data.push(
-					element.sum.unanswered ? element.sum.unanswered : "00:00:00"
-				);
+				// Chart için ham saniye — yaxis formatter HH:MM:SS'e çevirir
+				sum[0].data.push(element.sum.answer_seconds || 0);
+				sum[1].data.push(element.sum.ivr_seconds || 0);
+				sum[2].data.push(element.sum.abondan_seconds || 0);
+				sum[3].data.push(element.sum.unanswered_seconds || 0);
 			});
 
+			// Apex'in deep watcher'ı nested categories mutation'ını her zaman
+			// yakalamadığı için options'ı yeni reference olarak yeniden atıyoruz
+			// ve chart'ı bir tick için kapatıp açarak temiz remount sağlıyoruz.
 			this.charts.count.series = count;
-			this.charts.count.options.xaxis.categories = dates;
-			this.charts.count.visible = true;
-
+			this.charts.count.options = {
+				...this.charts.count.options,
+				xaxis: { ...this.charts.count.options.xaxis, categories: dates },
+			};
 			this.charts.sum.series = sum;
-			this.charts.sum.options.xaxis.categories = dates;
-			this.charts.sum.visible = true;
+			this.charts.sum.options = {
+				...this.charts.sum.options,
+				xaxis: { ...this.charts.sum.options.xaxis, categories: dates },
+			};
+
+			this.charts.count.visible = false;
+			this.charts.sum.visible = false;
+			this.$nextTick(() => {
+				this.charts.count.visible = true;
+				this.charts.sum.visible = true;
+			});
 		},
 	},
 };

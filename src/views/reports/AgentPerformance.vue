@@ -6,7 +6,7 @@
 				:downloadable="true"
 				:selectable="true"
 				:before-download="download"
-				endpoint="reports/agent"
+				endpoint="reports/agent-performance"
 				vector="report"
 				:filters="filters"
 			>

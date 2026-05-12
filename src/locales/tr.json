@@ -131,7 +131,7 @@
         "description": "Temsilcilerin gelen, giden, mola ve konuşma sürelerini görüntüler."
       },
       "agent_state_statuses": {
-        "title": "Hat Durum Geçmişi",
+        "title": "Temsilci Durum Geçmişi",
         "description": ""
       },
       "call_detail_report": {
