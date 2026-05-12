@@ -29,9 +29,9 @@
 		<div class="p-4">
 			<div class="row">
 				<div class="col-md-8 p-4">
-					<h3 class="font-weight-bold mb-3">Oturumunuzun Süresi Doldu</h3>
+					<h3 class="font-weight-bold mb-3">Oturumunuz Sonlandırıldı</h3>
 					<span>
-						Ne yazık ki bir süredir işlem yapmadığınız için oturumunuzun süresi doldu, çıkış yaparak tekrar giriş yapmanız gerekiyor.
+						Güvenlik nedeniyle oturumunuz sonlandırıldı, çıkış yaparak tekrar giriş yapmanız gerekiyor.
 					</span>
 				</div>
 				<div class="col-md-4">
@@ -43,7 +43,7 @@
 			</div>
 		</div>
 		<div slot="footer" class="pt-3">
-			<button class="btn btn-primary btn-rounded" @click="logout('Oturumunuzun süresi dolmuş, lütfen tekrar giriş yapın.')">Çıkış Yap <ion-icon class="ml-2" name="log-out-outline"></ion-icon></button>
+			<button class="btn btn-primary btn-rounded" @click="logout('Güvenlik nedeniyle oturumunuz sonlandırıldı, lütfen tekrar giriş yapın.')">Çıkış Yap <ion-icon class="ml-2" name="log-out-outline"></ion-icon></button>
 		</div>
 	</el-dialog>
 	</div>

@@ -168,7 +168,7 @@ export default {
       warning: false,
       warnings: {
         'terminate': 'Sistemde yapılan çalışma sebebiyle operasyondan çıkarıldınız. Kısa bir süre sonra tekrar deneyebilirsiniz.',
-        'timeout': 'Oturumunuz zaman aşımına uğradı, lütfen tekrar giriş yapın.',
+        'timeout': 'Güvenlik nedeniyle oturumunuz sonlandırıldı, lütfen tekrar giriş yapın.',
         'connection-failed': 'Sunucuya bağlanırken bir hatayla karşılaşıldı, lütfen sistem yöneticinize danışın.',
       },
       lastUsers: localStorage.getItem('lastUsers') ? JSON.parse(localStorage.getItem('lastUsers')) : [],
