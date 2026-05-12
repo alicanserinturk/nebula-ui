@@ -234,6 +234,11 @@ const routes = [
                         meta: modules.agent_performance,
                     },
                     {
+                        path: 'agent-performance/:user_id',
+                        component: () => import('../views/reports/AgentPerformanceAnalysis'),
+                        meta: modules.agent_performance,
+                    },
+                    {
                         path: 'agent-state-statuses',
                         component: () => import('../views/reports/AgentStateStatuses'),
                         meta: modules.agent_state_statuses,
