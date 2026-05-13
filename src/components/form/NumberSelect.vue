@@ -1,7 +1,7 @@
 <template>
   <div class="d-block position-relative">
     <div v-if="dataLoading" style="position:absolute; right: 30px; z-index:9; top:10px;"><i class="el-icon-loading"></i></div>
-    <el-select key="number_select" size="medium" :disabled="dataLoading" v-model="itemID" :placeholder="placeholder">
+    <el-select key="number_select" size="medium" :disabled="dataLoading" v-model="itemID" :placeholder="placeholder" :clearable="clearable">
       <el-option
           v-for="item in options"
           :key="'number' + item.id"
@@ -20,7 +20,8 @@
 <script>
 export default {
   props: {
-    value: {required: true}
+    value: {required: true},
+    clearable: {type: Boolean, default: false}
   },
   data() {
     return {

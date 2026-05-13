@@ -150,7 +150,7 @@
                                                 <template slot-scope="scope">
                                                     <div class="d-flex align-items-center">
                                                         <div style="width: 10px; height: 20px; border-radius: 0 10px 10px 0; margin-right: 12px; margin-left: -10px;" :class="getAgentStatusColor(scope.row)"></div>
-                                                        <span class="d-block" v-if="scope.row.user" style="font-size: 13px; font-weight: 500;">
+                                                        <span v-if="scope.row.user" @click="openAgentPerformance(scope.row)" class="d-block" style="font-size: 13px; font-weight: 500; cursor: pointer;">
                                                             {{ scope.row.user.name }} {{ scope.row.user.surname }}
                                                         </span>
                                                     </div>
@@ -159,7 +159,7 @@
                                             <el-table-column label="Durum" min-width="120">
                                                 <template slot-scope="scope">
                                                     <span v-if="scope.row.state && scope.row.state.name" class="badge badge-pill badge-light" style="font-size: 11.5px;">
-                                                        {{ scope.row.state.name }}
+                                                        {{ scope.row.state.name }}<template v-if="scope.row.state.state === 'break' && scope.row.break_count_today > 0"> ({{ scope.row.break_count_today }})</template>
                                                     </span>
                                                     <span v-else class="text-muted small">—</span>
                                                 </template>
@@ -353,12 +353,27 @@
                 </div>
             </div>
         </app-module-body>
+
+        <el-dialog
+            :append-to-body="true"
+            :title="agentPerformanceModal.title"
+            :visible.sync="agentPerformanceModal.visible"
+            width="640px"
+            top="6vh"
+        >
+            <agent-performance-modal
+                v-if="agentPerformanceModal.visible && agentPerformanceModal.userId"
+                :user-id="agentPerformanceModal.userId"
+                :key="agentPerformanceModal.userId"
+            ></agent-performance-modal>
+        </el-dialog>
     </app-module>
 </template>
 
 <script>
 import { mapGetters } from 'vuex';
 import VueApexCharts from 'vue-apexcharts';
+import AgentPerformanceModal from './AgentPerformanceModal.vue';
 
 const CALL_CHART_COLORS = ['#3ED96A', '#3C81FA', '#FFA21D', '#FE4D62'];
 
@@ -384,13 +399,14 @@ const AGENT_PALETTE = {
 };
 
 export default {
-    components: { apexchart: VueApexCharts },
+    components: { apexchart: VueApexCharts, AgentPerformanceModal },
 
     data() {
         return {
             now: new Date(),
             loading: { init: false },
             timer: null,
+            agentPerformanceModal: { visible: false, userId: null, title: '' },
             activeTab: 'all', // all, callsOnly, agentsOnly, chartsOnly, listsOnly
 
             // Veri
@@ -983,6 +999,7 @@ export default {
                             name:  statesMap[api.state_id] ? statesMap[api.state_id].name  : (api.state_name || ''),
                             state: statesMap[api.state_id] ? statesMap[api.state_id].state : (api.state_key  || null),
                         } : null,
+                        break_count_today: api ? (parseInt(api.break_count_today, 10) || 0) : 0,
                     };
                 });
 
@@ -1035,6 +1052,9 @@ export default {
                     if (data.partial.call_status !== undefined) this.$set(user, 'call_status', data.partial.call_status);
                     if (data.partial.is_online  !== undefined) this.$set(user, 'is_online',   data.partial.is_online);
                     if (data.partial.started_at !== undefined) this.$set(user, 'started_at',  data.partial.started_at);
+                    if (data.partial.break_count_today !== undefined) {
+                        this.$set(user, 'break_count_today', parseInt(data.partial.break_count_today, 10) || 0);
+                    }
                     if (data.partial.state_id   !== undefined) {
                         const sId = data.partial.state_id;
                         this.$set(user, 'state', sId === null ? null : {
@@ -1073,6 +1093,17 @@ export default {
             } else if (normalized.current_state !== 'hangup') {
                 this.calls.unshift(normalized);
             }
+        },
+
+        // ── Performans modal ────────────────────────────────────────
+        openAgentPerformance(agent) {
+            if (!agent || !agent.user || !agent.user.id) return;
+            const fullName = `${agent.user.name || ''} ${agent.user.surname || ''}`.trim();
+            this.agentPerformanceModal = {
+                visible: true,
+                userId: agent.user.id,
+                title: fullName ? `Performans — ${fullName}` : 'Performans',
+            };
         },
 
         // ── Filtre toggle ───────────────────────────────────────────
