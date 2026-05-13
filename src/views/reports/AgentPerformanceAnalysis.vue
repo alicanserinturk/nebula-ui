@@ -10,19 +10,17 @@
 		<app-module-body>
 			<app-warning></app-warning>
 
-			<!-- Agent kimlik kartı -->
-			<div v-if="data && data.user" class="mb-3 d-flex align-items-center">
-				<span class="w-40 avatar bg-light mr-3">
-					{{ (data.user.name || ' ')[0] }}{{ (data.user.surname || ' ')[0] }}
-				</span>
-				<div>
-					<h5 class="mb-0">{{ data.user.name }} {{ data.user.surname }}</h5>
-					<small class="text-muted">{{ data.user.email }}</small>
+			<!-- Agent kimlik kartı + filtre çubuğu (aynı satırda) -->
+			<div class="row row-xs align-items-center mb-3">
+				<div v-if="data && data.user" class="col-auto mr-auto d-flex align-items-center">
+					<span class="w-40 avatar bg-light mr-3">
+						{{ (data.user.name || ' ')[0] }}{{ (data.user.surname || ' ')[0] }}
+					</span>
+					<div>
+						<h5 class="mb-0">{{ data.user.name }} {{ data.user.surname }}</h5>
+						<small class="text-muted">{{ data.user.email }}</small>
+					</div>
 				</div>
-			</div>
-
-			<!-- Filtre çubuğu -->
-			<div class="row row-xs mb-3">
 				<div class="col-auto">
 					<el-date-picker
 						v-model="filters.date"
@@ -102,6 +100,21 @@
 					</div>
 				</app-card>
 
+				<!-- Verimlilik Grafiği -->
+				<app-card class="mb-3">
+					<template slot="header">
+						<h6 class="mb-0">
+							<ion-icon name="pie-chart-outline" class="mr-1"></ion-icon>Verimlilik
+						</h6>
+					</template>
+					<VueApexCharts
+						type="bar"
+						height="220"
+						:options="efficiencyChart.options"
+						:series="efficiencyChart.series"
+					></VueApexCharts>
+				</app-card>
+
 				<!-- Gelen / Giden Çağrı Kartları -->
 				<div class="row row-xs">
 					<div v-for="block in callBlocks" :key="block.key" class="col-md-6">
@@ -171,10 +184,11 @@
 </template>
 <script>
 import moment from "moment";
+import VueApexCharts from "vue-apexcharts";
 import MissedCallsModal from "./MissedCallsModal.vue";
 
 export default {
-	components: { MissedCallsModal },
+	components: { MissedCallsModal, VueApexCharts },
 	data() {
 		const self = this;
 		return {
@@ -212,6 +226,97 @@ export default {
 				{ key: "inbound", title: "Gelen Çağrılar", icon: "arrow-undo-outline", stats: this.data.calls.inbound },
 				{ key: "outbound", title: "Giden Çağrılar", icon: "arrow-redo-outline", stats: this.data.calls.outbound },
 			];
+		},
+		efficiencyChart() {
+			// Yön bazlı zaman bölünmesi: state süresi = konuşma + çalma + boşta.
+			// Bar görsel olarak daima dolu görünsün diye 4. segment "Hat Durumu Dışı"
+			// (açık gri) ile en az 8 saate (ya da iki yönün daha uzun olanına) kadar
+			// tamamlanıyor. Negatife düşmemek için her segment 0'a clamp.
+			const empty = { options: {}, series: [] };
+			if (!this.data) return empty;
+
+			const findKey = (k) => (this.data.states.find((s) => s.key === k) || {}).seconds || 0;
+			const inState = findKey("inbound");
+			const outState = findKey("outbound");
+			const inRinging = this.data.calls.inbound.ringing_seconds || 0;
+			const inTalking = this.data.calls.inbound.talking_seconds || 0;
+			const inIdle = Math.max(inState - inRinging - inTalking, 0);
+			const outRinging = this.data.calls.outbound.ringing_seconds || 0;
+			const outTalking = this.data.calls.outbound.talking_seconds || 0;
+			const outIdle = Math.max(outState - outRinging - outTalking, 0);
+
+			const baseline = 8 * 3600;
+			const maxSec = Math.max(inState, outState, baseline);
+			const inOther = Math.max(maxSec - inState, 0);
+			const outOther = Math.max(maxSec - outState, 0);
+
+			// 1 aylık aralıkta 720+ saat görünebilir; HH:MM:SS okunaksız kalıyor.
+			// Aralığa göre birim seç: gün/saat/dakika/saniye.
+			const fmt = (v) => {
+				const s = Math.max(0, Math.floor(v || 0));
+				const days = Math.floor(s / 86400);
+				const hours = Math.floor((s % 86400) / 3600);
+				const minutes = Math.floor((s % 3600) / 60);
+				const seconds = s % 60;
+				if (days > 0) return days + "g " + hours + "sa";
+				if (hours > 0) return hours + "sa " + minutes + "dk";
+				if (minutes > 0) return minutes + "dk " + seconds + "sn";
+				return seconds + "sn";
+			};
+
+			return {
+				series: [
+					{ name: "Konuşma", data: [inTalking, outTalking] },
+					{ name: "Çalma", data: [inRinging, outRinging] },
+					{ name: "Boşta", data: [inIdle, outIdle] },
+					{ name: "Hat Durumu Dışı", data: [inOther, outOther] },
+				],
+				options: {
+					chart: {
+						type: "bar",
+						stacked: true,
+						toolbar: { show: false },
+						parentHeightOffset: 0,
+					},
+					states: {
+						hover: { filter: { type: "none" } },
+						active: { filter: { type: "none" } },
+					},
+					plotOptions: {
+						bar: { horizontal: true, borderRadius: 3, barHeight: "85%" },
+					},
+					dataLabels: { enabled: false },
+					colors: ["#3ED96A", "#FFA21D", "#9e9e9e", "#ECEFF1"],
+					grid: {
+						padding: { left: 0, right: 10, top: 0, bottom: 0 },
+					},
+					xaxis: {
+						categories: ["Gelen", "Giden"],
+						min: 0,
+						max: maxSec,
+						tickAmount: 8,
+						forceNiceScale: false,
+						labels: { formatter: fmt },
+						axisBorder: { show: false },
+						axisTicks: { show: false },
+					},
+					yaxis: {
+						labels: {
+							style: { fontSize: "13px" },
+							maxWidth: 60,
+						},
+						axisBorder: { show: false },
+						axisTicks: { show: false },
+					},
+					legend: {
+						position: "top",
+						horizontalAlign: "left",
+						customLegendItems: ["Konuşma", "Çalma", "Boşta"],
+						markers: { fillColors: ["#3ED96A", "#FFA21D", "#9e9e9e"] },
+					},
+					tooltip: { y: { formatter: fmt } },
+				},
+			};
 		},
 	},
 	created() {
