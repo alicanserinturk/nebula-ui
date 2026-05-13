@@ -166,7 +166,6 @@ export default {
   data() {
     return {
       reconnectModalVisible: false,
-      isLogout: false,
       outbound: {
         number: ''
       },
@@ -231,19 +230,9 @@ export default {
     EventBus.$on('sipCall', () => {
       this.call('05416693399');
     })
-
-    EventBus.$on('logout', () => {
-      this.isLogout = true;
-      if (this.sip.active) {
-        this.disconnect();
-      } else {
-        EventBus.$emit('sipDisconnected', false);
-      }
-    })
   },
   beforeDestroy() {
     EventBus.$off('sipCall');
-    EventBus.$off('logout');
   },
   methods: {
     reconnect() {
@@ -392,9 +381,6 @@ export default {
         self.sip.active = false;
         self.reset();
         window.removeEventListener('beforeunload', this.beforeunloadListener);
-        if (self.isLogout) {
-          EventBus.$emit('sipDisconnected', true);
-        }
       });
       this.phone.on('registrationFailed', function (e) {
         console.log('registrationFailed');

@@ -165,8 +165,7 @@ const API = {
                     EventBus.$emit('apiWarning', error.response.data.errors);
                 } else if (error.response.status === 401) {
                     console.log("401", error, user);
-                    EventBus.$emit('timeout');
-                    //EventBus.$emit('logout', "Oturumunuzun süresi dolmuş, lütfen tekrar giriş yapın.");
+                    EventBus.$emit('logout', 'Oturum süreniz doldu, lütfen tekrar giriş yapın.');
                 } else if (error.response.status === 403) {
                     Message.error(error.response.data.errors.message)
                 } else if (error.response.status === 429) {

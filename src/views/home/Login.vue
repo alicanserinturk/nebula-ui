@@ -124,7 +124,7 @@
           </div>
         </div>
         <div class="mt-5 pb-4">
-          <span class="text-muted">Tüm Hakları Saklıdır © 2021</span>
+          <span class="text-muted">Tüm Hakları Saklıdır © {{ new Date().getFullYear() }}</span>
         </div>
       </div>
     </div>

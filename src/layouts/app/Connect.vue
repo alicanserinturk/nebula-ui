@@ -1,13 +1,13 @@
 <template>
 	<div>
 		<transition name="el-fade-in-linear">
-			<div class="app-connect-cover" v-if="!socket.status">
+			<div class="app-connect-cover" v-if="!socket.status && !loggingOut">
 				<div class="app-connect-action-cover">
 					<div>
 						<transition name="el-fade-in-linear">
 							<div
 								class="app-connect-action row"
-								v-if="socket.failed || timeout || !online"
+								v-if="socket.failed || !online"
 							>
 								<div class="col-12 text-center">
 									<app-svg
@@ -16,21 +16,13 @@
 									/>
 								</div>
 								<div class="app-connect-message text-center col">
-									<h6 class="font-weight-bold" v-if="socket.failed">
-										{{ socket.failedMessage }}
-									</h6>
 									<span class="d-block mb-3" v-if="!online"
 										>İnternete erişilemiyor. Lütfen bağlantınızı kontrol
 										edin.</span
 									>
-									<span class="d-block mb-3" v-else-if="timeout"
-										><i class="el-icon-loading mr-1"></i> Bağlantı normalden
-										uzun sürüyor gibi görünüyor. Bağlanmak için bekleyebilir
-										veya daha sonra tekrar deneyebilirsiniz.</span
-									>
-									<span class="d-block mb-3" v-else-if="socket.failed"
-										><i class="el-icon-loading mr-1"></i> Bir hatayla karşılaşdı
-										ve tekrar bağlantı deneniyor.</span
+									<span class="d-block mb-3" v-else
+										><i class="el-icon-loading mr-1"></i>
+										{{ socket.failedMessage }}</span
 									>
 								</div>
 							</div>
@@ -43,7 +35,7 @@
 						<transition name="el-fade-in-linear">
 							<div class="app-connect-information px-4 py-5">
 								<button
-									v-if="timeout || socket.failed"
+									v-if="socket.failed"
 									@click="logout"
 									class="btn btn-light btn-rounded mx-auto d-block"
 								>
@@ -75,23 +67,18 @@ export default {
 		return {
 			online: window.navigator.onLine,
 			visible: false,
-			timeoutEvent: null,
-			timeout: null,
 		};
 	},
 	computed: {
-		...mapGetters(["currentUser", "socket"]),
+		...mapGetters(["currentUser", "socket", "loggingOut"]),
 	},
 	created() {
-		let self = this;
 		// Set Variables
 		this.setSocketIsFirstConnect(true);
 		// Set Socket Statuses
 		this.connectSocket();
-		this.checkSocketStatus();
 		// Check User Settings For Updates
 		this.checkAndUpdateUserSettings();
-
 	},
 	methods: {
 		...mapMutations(["setSocketIsFirstConnect", "clearSocketFailed"]),
@@ -126,17 +113,6 @@ export default {
 				this.updateCurrentUser();
 			}
 		},
-		checkSocketStatus() {
-			if (!this.socket.status) {
-				let self = this;
-				this.timeoutEvent = setTimeout(() => {
-					self.timeout = true;
-				}, 10000);
-			} else {
-				clearTimeout(this.timeoutEvent);
-				this.timeout = false;
-			}
-		},
 		checkOnlineStatus() {
 			this.online = window.navigator.onLine;
 		},
@@ -145,7 +121,6 @@ export default {
 		"socket.status": function(val) {
 			this.visible = !val;
 			this.checkOnlineStatus();
-			this.checkSocketStatus();
 		},
 	},
 };

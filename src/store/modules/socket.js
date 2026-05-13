@@ -1,6 +1,28 @@
 import io from "socket.io-client";
 import EventBus from "@/utils/EventBus";
 
+const RECONNECT_GRACE_MS = 15000;
+const RECONNECTING_MESSAGE = 'Sunucu ile bağlantınızda sorun var, tekrar deneniyor...';
+const GRACE_TIMEOUT_MESSAGE = 'Sunucu bağlantısı kurulamadı, lütfen tekrar giriş yapın.';
+let reconnectGraceTimer = null;
+
+function clearReconnectGrace() {
+    if (reconnectGraceTimer) {
+        clearTimeout(reconnectGraceTimer);
+        reconnectGraceTimer = null;
+    }
+}
+
+function startReconnectGrace() {
+    if (reconnectGraceTimer) return;
+    reconnectGraceTimer = setTimeout(() => {
+        reconnectGraceTimer = null;
+        // Connect.vue overlay'i 15 sn boyunca "tekrar deneniyor" mesajını gösterdi;
+        // ayrı reason modal göstermeden runLogout'a düş, sebebi URL ile login'e taşı.
+        EventBus.$emit('logout:silent', GRACE_TIMEOUT_MESSAGE);
+    }, RECONNECT_GRACE_MS);
+}
+
 export default {
     state: () => ({
         socket: {
@@ -19,6 +41,9 @@ export default {
             active: false,
             lockedBy: null,
         },
+        // Logout sürerken Connect.vue overlay'i ve disconnect handler'ı
+        // baskılanır — aksi halde manuel çıkışta da "tekrar deneniyor" yanıp söner.
+        loggingOut: false,
     }),
     mutations: {
         setSocket(state, payload) {
@@ -52,6 +77,9 @@ export default {
             state.sipLock.active = payload.active;
             state.sipLock.lockedBy = payload.lockedBy || null;
         },
+        setLoggingOut(state, payload) {
+            state.loggingOut = !!payload;
+        },
     },
     actions: {
         /*
@@ -70,6 +98,7 @@ export default {
                 })
                 server.on("connect", () => {
                     console.log("Socket: Connected");
+                    clearReconnectGrace();
                     commit('setSocketServer', server);
                     commit('setSocketIsFirstConnect', false);
                     commit('setSocketStatus', true);
@@ -132,30 +161,39 @@ export default {
                 server.on("terminate_user", () => {
                     console.log("Socket: terminate_user");
                     server.close();
-                    commit('setSocketFailed', "terminate_user");
-                    EventBus.$emit('logout', 'Sistemde yapılan bir çalışma sebebiyle, oturumunuz sonlandırıldı.');
+                    clearReconnectGrace();
+                    EventBus.$emit('logout:silent', 'Sistemde yapılan bir çalışma sebebiyle, oturumunuz sonlandırıldı.');
                 });
                 server.on("disconnect", (e) => {
                     console.log("Socket: Disconnect", e);
-                    commit('setSocketFailed', e);
+                    if (getters.loggingOut) return;
+                    commit('setSocketFailed', RECONNECTING_MESSAGE);
+                    startReconnectGrace();
                 });
                 server.on("connect_error", (e) => {
                     console.log("connect_error", e);
-                    commit('setSocketFailed', e);
+                    if (getters.loggingOut) return;
+                    commit('setSocketFailed', RECONNECTING_MESSAGE);
+                    startReconnectGrace();
                 });
                 server.on("error", (e) => {
-                    server.close();
+                    console.log("Socket: error", e);
+                    if (getters.loggingOut) return;
+                    // Sadece middleware'in kesin reddediliş işareti (socket_connect)
+                    // anında çıkış yaptırır. Diğer her şey transient kabul edilir ve
+                    // 15 sn grace içinde reconnect denenir.
                     try {
-                        let errors = JSON.parse(e).errors;
-                        if (errors.key == 'socket_connect') {
-                            EventBus.$emit('logout', errors.message);
-                        } else {
-                            commit('setSocketFailed', errors.message);
+                        const raw = typeof e === 'string' ? e : (e && e.message);
+                        const errors = raw ? JSON.parse(raw).errors : null;
+                        if (errors && errors.key === 'socket_connect') {
+                            server.close();
+                            clearReconnectGrace();
+                            EventBus.$emit('logout:silent', errors.message);
+                            return;
                         }
-                    }
-                    catch (err) {
-                        EventBus.$emit('logout', 'Sunucuyla sağlıklı bir bağlantı kurulamadı.');
-                    }
+                    } catch (_) {}
+                    commit('setSocketFailed', RECONNECTING_MESSAGE);
+                    startReconnectGrace();
                 });
                 server.on('reconnect_attempt', () => {
                     server.io.opts.query = {
@@ -167,6 +205,8 @@ export default {
             }
         },
         disconnectSocket({ commit, getters }) {
+            commit('setLoggingOut', true);
+            clearReconnectGrace();
             if (getters.socket.status) {
                 getters.socket.server.close();
             }
@@ -186,6 +226,9 @@ export default {
         },
         sipLock: state => {
             return state.sipLock;
+        },
+        loggingOut: state => {
+            return state.loggingOut;
         },
     }
 }
