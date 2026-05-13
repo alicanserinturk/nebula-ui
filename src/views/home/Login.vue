@@ -1,6 +1,6 @@
 <template>
   <div class="row no-gutters h-100">
-    <div class="col-md-6 bg-white" style="height: 100vh; overflow-y: auto">
+    <div class="col-md-6" style="height: 100vh; overflow-y: auto; background: rgb(250, 250, 250)">
       <div class="float-right home-form">
         <div v-if="warning && (!cache && !robot)">
           <div class="alert bg-white b-b-warning px-0 b-b-2x" role="alert"><h5 class="alert-heading font-weight-bold">Uyarı</h5>
@@ -128,11 +128,14 @@
         </div>
       </div>
     </div>
-    <div class="col-md-6 bg-dark" style="height: 100vh; background: #5145CD !important">
+    <div class="col-md-6 bg-dark app-login-brand" style="height: 100vh; background: #5145CD !important">
+      <div class="app-login-blob app-login-blob--1"></div>
+      <div class="app-login-blob app-login-blob--2"></div>
+      <div class="app-login-blob app-login-blob--3"></div>
       <div class="comment-form">
         <h1 class="mb-3 font-weight-bold">Güvenli,<br>esnek ve özelleştirilebilir<br>bir deneyim.</h1>
-        <p class="mb-4">Dökümantasyonu inceleyerek Nebula'nın sınırlarını keşfedebilirsiniz.</p>
-        <a class="btn btn-white r-3x btn-outline-white" href="https://docs.nebulavpbx.com/" target="_blank">Dökümantasyonu İncele</a>
+        <p class="mb-4">Belgeleri inceleyerek Nebula'nın sınırlarını keşfedebilirsiniz.</p>
+        <a class="btn btn-white r-3x btn-outline-white" href="https://docs.nebulavpbx.com/" target="_blank">Belgeleri İncele</a>
       </div>
     </div>
   </div>
@@ -343,5 +346,80 @@ export default {
   background: transparent !important;
   padding: 12px 20px;
   font-weight: 700;
+}
+
+/* Kayıtlı hesap satırında uzun e-posta artık alta sarmıyor — sığmayan kısım
+   sağ kenara doğru yumuşakça sönerek kayboluyor. */
+.last-user .col-md {
+  min-width: 0;
+}
+
+.last-user small {
+  white-space: nowrap;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent 100%);
+  mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent 100%);
+}
+
+.app-login-brand {
+  position: relative;
+  overflow: hidden;
+}
+
+.app-login-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.55;
+  pointer-events: none;
+  z-index: 0;
+  will-change: transform;
+}
+
+.app-login-blob--1 {
+  width: 520px;
+  height: 520px;
+  top: -12%;
+  left: -12%;
+  background: radial-gradient(circle, #a78bfa 0%, transparent 70%);
+  animation: app-login-blob-1 20s ease-in-out infinite;
+}
+
+.app-login-blob--2 {
+  width: 460px;
+  height: 460px;
+  bottom: -15%;
+  right: -10%;
+  background: radial-gradient(circle, #8b5cf6 0%, transparent 70%);
+  animation: app-login-blob-2 24s ease-in-out infinite;
+}
+
+.app-login-blob--3 {
+  width: 380px;
+  height: 380px;
+  top: 45%;
+  left: 35%;
+  background: radial-gradient(circle, #c4b5fd 0%, transparent 70%);
+  animation: app-login-blob-3 28s ease-in-out infinite;
+}
+
+@keyframes app-login-blob-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(40px, 60px) scale(1.1); }
+}
+
+@keyframes app-login-blob-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-50px, -40px) scale(0.92); }
+}
+
+@keyframes app-login-blob-3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-30px, 50px) scale(1.15); }
+}
+
+.app-login-brand .comment-form {
+  position: relative;
+  z-index: 1;
 }
 </style>
