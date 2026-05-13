@@ -50,44 +50,54 @@
 				<!-- Hat Durumları -->
 				<app-card class="mb-3">
 					<template slot="header">
-						<h6 class="mb-0">Hat Durumu Süreleri</h6>
+						<h6 class="mb-0">
+							<ion-icon name="time-outline" class="mr-1"></ion-icon>Hat Durumu Süreleri
+						</h6>
 					</template>
 					<div v-if="data.states.length === 0" class="text-muted">
 						Bu aralıkta hat durumu kaydı yok.
 					</div>
-					<div v-else class="row row-xs">
-						<div v-for="state in data.states" :key="state.id" class="col-md-3 col-6 mb-2">
-							<div class="card bg-light border-0">
-								<div class="card-body p-3">
-									<small class="text-muted d-block">{{ state.name }}</small>
-									<h5 class="mb-0 mt-1">{{ state.duration }}</h5>
+					<div v-else class="d-flex flex-wrap" style="gap: 8px;">
+						<div v-for="state in data.states" :key="state.id"
+							class="card bg-light border-0"
+							style="width: 150px; flex: 0 0 150px;">
+							<div class="card-body p-2 d-flex align-items-center">
+								<span class="w-32 avatar circle bg-white mr-2 flex-shrink-0">
+									<ion-icon :name="stateIcon(state)" class="text-muted"></ion-icon>
+								</span>
+								<div class="text-truncate">
+									<small class="text-muted d-block text-truncate">{{ state.name }}</small>
+									<h6 class="mb-0">{{ state.duration }}</h6>
 								</div>
 							</div>
 						</div>
 					</div>
 				</app-card>
 
-				<!-- Birleştirilmiş Ringing KPI -->
+				<!-- Kaçan Çağrılarda Ringing Analizi -->
 				<app-card class="mb-3">
 					<template slot="header">
-						<h6 class="mb-0">Toplam Ringing</h6>
+						<div class="d-flex justify-content-between align-items-center">
+							<h6 class="mb-0">
+								<ion-icon name="alert-circle-outline" class="mr-1"></ion-icon>Kaçan Çağrılarda Ringing Analizi
+							</h6>
+							<a href="#" @click.prevent="missedModal.visible = true" class="small text-muted font-weight-bold">
+								{{ data.user.name }}'nın Kaçırdığı Çağrıları Gör<ion-icon name="arrow-forward-outline" class="ml-1"></ion-icon>
+							</a>
+						</div>
 					</template>
 					<div class="row text-center">
-						<div class="col-md-3 col-6">
+						<div class="col-md-4 col-6">
 							<h4 class="mb-1">{{ data.ringing_total.count }}</h4>
-							<small class="text-muted">Toplam Halka</small>
+							<small class="text-muted">Toplam Kaçan Çağrı</small>
 						</div>
-						<div class="col-md-3 col-6">
+						<div class="col-md-4 col-6">
 							<h4 class="mb-1">{{ data.ringing_total.duration }}</h4>
-							<small class="text-muted">Toplam Süre</small>
+							<small class="text-muted">Kaçan Çağrılarda Ringing Süresi</small>
 						</div>
-						<div class="col-md-3 col-6">
+						<div class="col-md-4 col-6">
 							<h4 class="mb-1">{{ data.ringing_total.avg }}</h4>
-							<small class="text-muted">Ortalama</small>
-						</div>
-						<div class="col-md-3 col-6">
-							<h4 class="mb-1">{{ data.no_answer.count }}</h4>
-							<small class="text-muted">Cevapsız ({{ data.no_answer.ring_time }})</small>
+							<small class="text-muted">Kaçan Çağrılarda Ortalama Ringing Süresi</small>
 						</div>
 					</div>
 				</app-card>
@@ -141,18 +151,37 @@
 				</div>
 			</div>
 		</app-module-body>
+
+		<el-dialog
+			:append-to-body="true"
+			title="Kaçan Çağrılar"
+			:visible.sync="missedModal.visible"
+			width="1200px"
+			top="6vh"
+		>
+			<missed-calls-modal
+				v-if="missedModal.visible"
+				:user-id="userId"
+				:date="filters.date"
+				:queue-id="filters.queue_id"
+				:number-id="filters.number_id"
+			></missed-calls-modal>
+		</el-dialog>
 	</app-module>
 </template>
 <script>
 import moment from "moment";
+import MissedCallsModal from "./MissedCallsModal.vue";
 
 export default {
+	components: { MissedCallsModal },
 	data() {
 		const self = this;
 		return {
 			loading: false,
 			data: null,
 			pickerAnchor: null,
+			missedModal: { visible: false },
 			filters: {
 				date: [moment().format("YYYY-MM-DD"), moment().format("YYYY-MM-DD")],
 				queue_id: null,
@@ -174,6 +203,9 @@ export default {
 		};
 	},
 	computed: {
+		userId() {
+			return this.$route.params.user_id;
+		},
 		callBlocks() {
 			if (!this.data) return [];
 			return [
@@ -194,6 +226,21 @@ export default {
 		},
 	},
 	methods: {
+		stateIcon(state) {
+			// state.key (pbx_states.state) → ionicon adı eşlemesi. Pano'daki ikon
+			// dilini takip ediyor; eşleşmeyen custom state'ler "briefcase-outline".
+			const map = {
+				inbound: "arrow-undo-outline",
+				outbound: "arrow-redo-outline",
+				break: "cafe-outline",
+				lunch: "restaurant-outline",
+				meeting: "people-outline",
+				training: "school-outline",
+				offline: "power-outline",
+				avail: "checkmark-circle-outline",
+			};
+			return map[state.key] || "briefcase-outline";
+		},
 		fetch() {
 			this.loading = true;
 			const userId = this.$route.params.user_id;

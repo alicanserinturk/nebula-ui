@@ -116,6 +116,13 @@ export default {
 					options: [],
 					required: false,
 				},
+				user_id: {
+					name: "Kullanıcı",
+					type: "user",
+					value: null,
+					options: [],
+					required: false,
+				},
 			},
 			crm: {
 				visible: false,
