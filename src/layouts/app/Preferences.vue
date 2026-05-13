@@ -973,10 +973,28 @@ export default {
 			this.updateSettings();
 		},
 		getMicrophonePermission() {
-			navigator.mediaDevices.getUserMedia({ audio: true });
+			navigator.mediaDevices
+				.getUserMedia({ audio: true })
+				.then((stream) => {
+					stream.getTracks().forEach((t) => t.stop());
+					this.$store.commit("setPermissionMicrophone", "granted");
+				})
+				.catch(() => {
+					this.$store.commit("setPermissionMicrophone", "denied");
+				});
 		},
 		getNotificationsPermission() {
-			Notification.requestPermission();
+			const result = Notification.requestPermission();
+			if (result && typeof result.then === "function") {
+				result
+					.then((perm) => {
+						this.$store.commit(
+							"setPermissionNotification",
+							perm === "default" ? "prompt" : perm
+						);
+					})
+					.catch(() => {});
+			}
 		},
 		setLang() {
 			this.$i18n.locale = this.currentUser.settings["interface_language"];

@@ -1,6 +1,33 @@
 {
 	"versions": [
 		{
+			"version": "3.1",
+			"description": "Operasyon yönetimi araçlarında kapsamlı yenilenme.",
+			"content_type": "json",
+			"release_date": "2026-05-13 22:00:00",
+			"content": [
+				{
+					"title": "Yeni Özellikler",
+					"items": [
+						"Anlık operasyon takibi için canlı izleme ekranı eklendi.",
+						"Müşteri temsilcisi performansını detaylı değerlendiren raporlama modülü eklendi.",
+						"Arama listelerine toplu veri yükleme akışı eklendi.",
+						"Özelleştirilebilir özet ekranı (pano) kullanıma sunuldu.",
+						"Cevapsız çağrı takibi ve geri dönüş yönetimi modülü eklendi.",
+						"Çağrı kuyruklarına yeni dağıtım stratejileri ve müşteri temsilcisi sıralama seçenekleri eklendi."
+					],
+					"images": []
+				},
+				{
+					"title": "İyileştirmeler",
+					"items": [
+						"Sistem genelinde performans iyileştirmeleri yapıldı ve çeşitli hata düzeltmeleri uygulandı."
+					],
+					"images": []
+				}
+			]
+		},
+		{
 			"version": "3.0.92",
 			"description": "Genel güncellemeler",
 			"content_type": "json",

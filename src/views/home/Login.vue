@@ -124,7 +124,7 @@
           </div>
         </div>
         <div class="mt-5 pb-4">
-          <span class="text-muted">Tüm Hakları Saklıdır © {{ new Date().getFullYear() }}</span>
+          <span class="text-muted">Tüm Hakları Saklıdır © {{ new Date().getFullYear() }} &bull; v{{ version }}</span>
         </div>
       </div>
     </div>
@@ -192,7 +192,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['currentUser', 'loading','loginErrors']),
+    ...mapGetters(['currentUser', 'loading','loginErrors','version']),
   },
   methods: {
     ...mapActions(['login']),

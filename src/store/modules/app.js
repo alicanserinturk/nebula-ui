@@ -1,7 +1,7 @@
 import { Notification } from 'element-ui';
 export default {
     state: () => ({
-        version: '3.0.92',
+        version: '3.1',
         users: [],
         notifications: localStorage.getItem('notifications') !== null && localStorage.getItem('notifications') !== '' ? JSON.parse(localStorage.getItem('notifications')) : [],
         permissions: {

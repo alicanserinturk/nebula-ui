@@ -96,39 +96,64 @@ export default {
 		return {
 			visible: false,
 			activeTab: "Chrome",
+			checkTimer: null,
 		};
 	},
 	computed: {
 		...mapGetters(["permissions"]),
 	},
 	created() {
-    let self = this;
-		setTimeout(() => {
-      self.checkPermissions()
-    },5000)
+		this.checkTimer = setTimeout(() => {
+			this.checkPermissions();
+		}, 5000);
 		EventBus.$on("openPermission", () => {
 			this.visible = true;
 		});
 	},
 	beforeDestroy() {
+		if (this.checkTimer) {
+			clearTimeout(this.checkTimer);
+			this.checkTimer = null;
+		}
 		EventBus.$off("openPermission");
 	},
 	methods: {
 		getMicrophonePermission() {
-			navigator.mediaDevices.getUserMedia({ audio: true });
+			navigator.mediaDevices
+				.getUserMedia({ audio: true })
+				.then((stream) => {
+					// Test stream'i hemen serbest bırak; mikrofon açık kalmasın.
+					stream.getTracks().forEach((t) => t.stop());
+					this.$store.commit("setPermissionMicrophone", "granted");
+				})
+				.catch(() => {
+					this.$store.commit("setPermissionMicrophone", "denied");
+				});
 		},
 		getNotificationsPermission() {
-			Notification.requestPermission();
+			const result = Notification.requestPermission();
+			// Eski callback API'si Promise döndürmeyebilir; ikisini de destekle.
+			if (result && typeof result.then === "function") {
+				result
+					.then((perm) => {
+						this.$store.commit(
+							"setPermissionNotification",
+							perm === "default" ? "prompt" : perm
+						);
+					})
+					.catch(() => {});
+			}
 		},
 		checkPermissions() {
-			if (
-				this.permissions.notification !== "granted" ||
-				this.permissions.microphone !== "granted"
-			) {
-				this.visible = true;
-			} else {
-        this.visible = false;
-      }
+			const mic = this.permissions.microphone;
+			const notif = this.permissions.notification;
+			// Tarayıcı sorgusu henüz resolve etmediyse veya API desteklenmiyorsa
+			// modal'ı butonsuz açma — sessizce kapalı tut.
+			if (mic === null || notif === null) {
+				this.visible = false;
+				return;
+			}
+			this.visible = mic !== "granted" || notif !== "granted";
 		},
 	},
 	watch: {

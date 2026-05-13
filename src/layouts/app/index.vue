@@ -176,6 +176,10 @@ export default {
 		},
 		checkPermissions() {
 			let self = this;
+			// Safari <16 'microphone'/'notifications' name'ini desteklemez ve fırlatır;
+			// destek yoksa state null kalır, Permission.vue modal'ı açmaz, kullanıcıya
+			// tarayıcının kendi native prompt'u gösterilir.
+			if (!navigator.permissions || !navigator.permissions.query) return;
 			navigator.permissions
 				.query({ name: "microphone" })
 				.then(function(permissionStatus) {
@@ -183,7 +187,8 @@ export default {
 					permissionStatus.onchange = function() {
 						self.setPermissionMicrophone(this.state);
 					};
-				});
+				})
+				.catch(() => {});
 			navigator.permissions
 				.query({ name: "notifications" })
 				.then(function(permissionStatus) {
@@ -191,7 +196,8 @@ export default {
 					permissionStatus.onchange = function() {
 						self.setPermissionNotification(this.state);
 					};
-				});
+				})
+				.catch(() => {});
 		},
 		logout() {
 			this.signout().then(() => {

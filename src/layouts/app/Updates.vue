@@ -15,11 +15,6 @@
         </div>
       </div>
       <div class="app-side-modal-body px-4 pt-0 pb-3">
-        <div class="p-3 py-4 r-3x mb-3 text-center" v-if="newUpdate">
-          <app-svg class="col-6 mx-auto" src="/assets/img/vectors/update.svg"></app-svg>
-          <small class="d-block mb-3">Yeni güncellemeler var, güncelliğinizi yitirmeyin ve güncellemleri yükleyin.</small>
-          <button class="btn bg-primary-lt btn-rounded btn-sm" @click="refreshPage()">Güncellemeyi Yükle</button>
-        </div>
         <div class="b-t py-3 pointer" v-for="item in versions" @click="setActiveVersion(item)">
             <h5 class="font-weight-bold mb-1">{{item.version}}</h5>
             <small class="d-block mb-1 text-muted"><small class="mr-1">{{item.description}} &bull; <app-date-text :text="item.release_date"></app-date-text></small></small>
@@ -44,19 +39,6 @@
       </div>
       <div class="app-update-alert-close">
         <button class="btn btn-sm btn-icon btn-rounded btn-white" @click="closeUpdateAlert()"><i class="el-icon-close"></i></ion-icon></button>
-      </div>
-    </div>
-    <div class="app-update-alert border bg-white pb-4 px-4" v-if="notification">
-      <div class="text-center">
-        <app-svg class="col-7 mx-auto mt-2" src="/assets/img/vectors/update-notification.svg"></app-svg>
-        <h5 class="font-weight-bold mt-2">Yeni güncellemeniz var</h5>
-        <span class="d-block mt-2 mb-4">Arayüzünüz için yeni güncellemeler var, güncelliğinizi yitirmeyin ve güncellemleri yükleyin.</span>
-      </div>
-      <div>
-        <button class="btn btn-primary btn-rounded w-100" @click="refreshPage()">Güncellemeyi Yükle</button>
-      </div>
-      <div class="app-update-alert-close">
-        <button class="btn btn-sm btn-icon btn-rounded btn-white" @click="notification = false"><i class="el-icon-close"></i></ion-icon></button>
       </div>
     </div>
     <el-dialog  :visible.sync="activeVersionModalVisible" :append-to-body="true">
@@ -96,63 +78,34 @@ import { mapActions, mapGetters } from 'vuex';
 export default {
   data(){
     return {
-      notification: false,
       visible:false,
       activeVersionModalVisible:false,
       activeVersion:{},
       versions:[],
       updateAlertVisible: false,
-      checkNewUpdate: true,
-      newUpdate: false,
     }
   },
   computed:{
     ...mapGetters(["currentUser"]),
   },
   created() {
-    let self = this;
     EventBus.$on('openUpdates',() => {
         this.visible = true;
     });
-    // Ceheck Updates
-		Axios.get("/versions.json").then((response) => {
+    // Sayfa yüklendiğinde bir kez kontrol et; setInterval yok, otomatik poll yapmıyoruz.
+    Axios.get("/versions.json?cache=" + Date.now()).then((response) => {
       this.versions = response.data.versions;
       if(this.versions[0] && this.currentUser.settings.last_version !== this.versions[0].version)
-			{
-				this.updateAlertVisible = true;
-			}
-    });
-    setInterval(() => {
-      self.getVersions();
-    },60000);
+      {
+        this.updateAlertVisible = true;
+      }
+    }).catch(() => {});
   },
   beforeDestroy() {
     EventBus.$off('openUpdates');
   },
   methods:{
-    ...mapActions(['updateCurrentUser',"pushNotification"]),
-    getVersions() {
-			Axios.get("/versions.json?cache=" + Math.floor((Math.random() * 1000000000) + 1)).then((response) => {
-				this.versions = response.data.versions;
-        this.checkUpdates();
-			});
-		},
-		checkUpdates() {
-			if(this.checkNewUpdate && this.versions[0] && this.currentUser.settings.last_version !== this.versions[0].version)
-			{
-        this.checkNewUpdate = false;
-        this.newUpdate = true;
-        this.notification = true;
-				this.pushNotification({
-            type: 'action',
-            icon: 'el-icon-cpu',
-            title: 'Yeni güncellemeler var',
-            message: 'Arayüzünüz için yeni bir güncelleme yayınlandı',
-            primary: null,
-            module: null,
-        });
-			}
-		},
+    ...mapActions(['updateCurrentUser']),
     setActiveVersion(item){
       this.activeVersion = item;
       this.activeVersionModalVisible = true;
@@ -167,9 +120,6 @@ export default {
       this.updateCurrentUser()
       this.setActiveVersion(this.versions[0])
     },
-    refreshPage(){
-      window.location.href = window.location.href;
-    }
   }
 }
 </script>
