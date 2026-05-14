@@ -118,6 +118,10 @@
         "title": "Yönetici İzleme",
         "description": ""
       },
+      "network_monitor": {
+        "title": "Ağ İzleme",
+        "description": "PBX sunucularının ağ sağlığını (latency, jitter, MOS, RTP) izler."
+      },
       "announcement": {
         "title": "Duyurular",
         "description": "Ana ekrandaki duyuruları görür."

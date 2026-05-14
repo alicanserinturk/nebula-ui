@@ -106,6 +106,10 @@
         "title": "Manager Monitor",
         "description": ""
       },
+      "network_monitor": {
+        "title": "Network Monitor",
+        "description": "Monitors network health of PBX servers (latency, jitter, MOS, RTP)."
+      },
       "announcement": {
         "title": "Announcements",
         "description": ""

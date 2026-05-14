@@ -128,6 +128,7 @@ export default {
           id: 1, key: 'starter', title: this.$t('menu.modules.starter.title'), icon: 'desktop-outline', href: '/', children: [
             {id: 2, key: 'dashboard', title: this.$t('menu.modules.dashboard.title'), icon: 'albums-outline', href: '/',},
             {id: 102, key: 'real_time', title: this.$t('menu.modules.real_time.title'), icon: 'tv-outline', href: '/realtime-monitor',},
+            {id: 103, key: 'network_monitor', title: this.$t('menu.modules.network_monitor.title'), icon: 'pulse-outline', href: '/network-monitor',},
           ]
         },
         {

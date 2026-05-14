@@ -106,6 +106,11 @@ export const modules = {
         key: 'real_time',
         icon: 'pie-chart-outline',
     },
+    'network_monitor': {
+        path: '',
+        key: 'network_monitor',
+        icon: 'pulse-outline',
+    },
     'announcement': {
         path: '',
         key: 'announcement',

@@ -33,6 +33,11 @@ const routes = [
                 meta: modules.real_time,
             },
             {
+                path: 'network-monitor',
+                component: () => import("../views/board/NetworkMonitor.vue"),
+                meta: modules.network_monitor,
+            },
+            {
                 path: 'messages',
                 component: () => import("../views/board/Messages.vue"),
                 meta: modules.messages,
