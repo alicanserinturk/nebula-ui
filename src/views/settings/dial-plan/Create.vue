@@ -272,6 +272,18 @@
 									</button>
 								</div>
 							</div>
+							<div class="mt-2 text-center">
+								<small class="text-muted">
+									7/24 çağrı alıyorsanız
+									<a
+										@click="toggleAllDay"
+										class="font-weight-500 cursor-pointer"
+										:class="isAllDay ? 'text-danger' : 'text-primary'"
+									>
+										{{ isAllDay ? 'tümünü kaldır' : 'tümünü işaretle' }}
+									</a>
+								</small>
+							</div>
 						</app-form-row>
 						<app-form-row>
 							<template v-for="(day, index) in form.available.times">
@@ -449,6 +461,9 @@ export default {
 	},
 	computed: {
 		...mapGetters(["currentUser"]),
+		isAllDay() {
+			return this.form.available.times.every((day) => day.length === 48);
+		},
 	},
 	created() {},
 	methods: {
@@ -473,6 +488,17 @@ export default {
 		},
 		createMenu() {
 			this.addStep("2");
+		},
+		toggleAllDay() {
+			if (this.isAllDay) {
+				this.form.available.times = [[], [], [], [], [], [], []];
+			} else {
+				const allSlots = Array.from({ length: 48 }, (_, i) => i * 0.5);
+				this.form.available.times = Array(7)
+					.fill(null)
+					.map(() => [...allSlots]);
+			}
+			this.$forceUpdate();
 		},
 		toggleDayForAvailable(key) {
 			if (this.form.available.times[key].length > 0) {

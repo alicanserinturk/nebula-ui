@@ -845,7 +845,8 @@ export default {
 					this.client.state = this.client.states.find((item) => {
 						return item.id === id;
 					});
-					if (this.client.numbers.length > 0 && id === 2) {
+					const outboundState = this.client.states.find((s) => s.state === 'outbound');
+					if (this.client.numbers.length > 0 && outboundState && id === outboundState.id) {
 						if (this.currentUser.settings.sip.default_number) {
 							this.changeNumber(this.currentUser.settings.sip.default_number);
 						}
@@ -1125,6 +1126,10 @@ export default {
 			this.client.status = false;
 			this.statesCounter = 0;
 			clearInterval(this.statesCounterInterval);
+			const defaultStateId = this.currentUser.settings.sip.default_state;
+			this.client.state = defaultStateId
+				? (this.client.states.find((s) => s.id === defaultStateId) || {})
+				: {};
 
 			this.closeEvents();
 			this.reset();
