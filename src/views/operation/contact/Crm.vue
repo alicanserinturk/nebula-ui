@@ -108,6 +108,13 @@ export default {
 			required: false,
 			default: null,
 		},
+		// Click-to-call'da socket → SipClient → Phone → History zincirinden gelir.
+		// Not POST body'sine eklenir; backend source_type/source_id/source_part_id'yi
+		// task'tan not'a kopyalar ve task'ı done'a çeker. Inbound/manuel'de null.
+		taskId: {
+			required: false,
+			default: null,
+		},
 		number: {
 			required: false,
 			default: null,
@@ -182,6 +189,7 @@ export default {
 					contact_id: this.contactId,
 					number:     this.number,
 					queue:      this.queue,
+					task_id:    this.taskId,
 				},
 				(response) => {
 					this.$message.success(

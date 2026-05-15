@@ -64,7 +64,14 @@
 							</small>
 						</template>
 					</el-table-column>
-					<el-table-column align="right" width="125" label="Oluşturma Tarihi">
+					<el-table-column align="right" width="160" label="Randevu">
+						<template slot-scope="scope">
+							<span class="text-muted" v-if="scope.row.scheduled_at">
+								<app-date-text :text="scope.row.scheduled_at"></app-date-text>
+							</span>
+						</template>
+					</el-table-column>
+					<el-table-column align="right" width="160" label="Oluşturma">
 						<template slot-scope="scope">
 							<span class="text-muted">
 								<app-date-text :text="scope.row.created_at"></app-date-text>

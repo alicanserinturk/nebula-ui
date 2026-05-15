@@ -195,6 +195,13 @@ export default {
               href: '/reports/call-analysis',
             },
             {
+              id: 101,
+              key: 'call_list_analysis_report',
+              title: this.$t('menu.modules.call_list_analysis_report.title'),
+              icon: 'pie-chart-outline',
+              href: '/reports/call-list-analysis',
+            },
+            {
               id: 44,
               key: 'call_recording_report',
               title: this.$t('menu.modules.call_recording_report.title'),

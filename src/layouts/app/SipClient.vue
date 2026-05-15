@@ -19,6 +19,7 @@
 			:phone="crm.phone"
 			:number="crm.number"
 			:queue="crm.queue"
+			:task-id="crm.taskId"
 		></Phone>
 
 		<!-- Disabled Call -->
@@ -562,6 +563,10 @@ export default {
 				number: null,
 				queue: null,
 				phone: null,
+				// Click-to-call'da Asterisk → voip-server → socket zinciri task_id'yi
+				// crm_trigger payload'unda taşıyor. CRM popup buradan okur, not/randevu
+				// request'inde backend'e geri verir. Inbound / manuel'de null kalır.
+				taskId: null,
 			},
 			settings: {
 				visible: false,
@@ -1153,6 +1158,7 @@ export default {
 						});
 						if (this.currentUser.settings.sip.auto_crm) {
 							this.crm.id = null;
+							this.crm.taskId = null;
 							this.crm.visible = true;
 						}
 					},
@@ -1285,6 +1291,7 @@ export default {
 			this.crm.number = data.number || null;
 			this.crm.queue  = data.queue  || null;
 			this.crm.phone  = data.phone  || null;
+			this.crm.taskId = data.task_id || null;
 		},
 		closeEvents() {
 			if (this.socket.status) {

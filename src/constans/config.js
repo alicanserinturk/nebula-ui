@@ -96,6 +96,11 @@ export const modules = {
         key: 'result_code_report',
         icon: 'stats-chart-outline',
     },
+    'call_list_analysis_report': {
+        path: '/reports/call-list-analysis',
+        key: 'call_list_analysis_report',
+        icon: 'pie-chart-outline',
+    },
     'agent': {
         path: '',
         key: 'agent',

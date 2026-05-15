@@ -61,6 +61,11 @@
 								<span class="badge badge-xs badge-light"
 									><i class="el-icon-right ml-1"></i> Giden Arama</span
 								>
+								<span
+									v-if="scope.row.task_id"
+									class="badge badge-xs badge-primary ml-1"
+									><i class="el-icon-tickets mr-1"></i> Görev</span
+								>
 								<small class="sub-item text-muted d-block">{{
 									scope.row.number ? scope.row.number.name : ''
 								}}</small>
@@ -68,6 +73,11 @@
 							<template v-else>
 								<span class="badge badge-xs badge-light"
 									><i class="el-icon-back mr-1"></i> Gelen Arama</span
+								>
+								<span
+									v-if="scope.row.task_id"
+									class="badge badge-xs badge-primary ml-1"
+									><i class="el-icon-tickets mr-1"></i> Görev</span
 								>
 								<small class="sub-item text-muted d-block"
 									>{{ scope.row.number ? scope.row.number.name : '' }}
@@ -162,6 +172,7 @@
 			:phone="crm.phone"
 			:number="crm.number"
 			:queue="crm.queue"
+			:task-id="crm.taskId"
 		></Phone>
 	</app-module>
 </template>
@@ -182,6 +193,9 @@ export default {
 				phone: null,
 				number: null,
 				queue: null,
+				// pbx_calls.task_id — voip-server CDR'a yazdı, backend resource döndü.
+				// Phone popup'a iletilir; not/randevu kaydında backend'e geri gönderilir.
+				taskId: null,
 				visible: false,
 			},
 			filters: {
@@ -225,6 +239,7 @@ export default {
 			this.crm.phone  = row.contact ? row.contact.phone : null;
 			this.crm.number = row.number ? row.number.number : null;
 			this.crm.queue  = row.queue ? row.queue.key : null;
+			this.crm.taskId = row.task_id || null;
 			this.crm.visible = true;
 		},
 		startCall(row) {

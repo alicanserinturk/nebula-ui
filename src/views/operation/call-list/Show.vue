@@ -75,45 +75,6 @@
 						</app-label>
 					</app-card>
 
-					<app-card :remove-body-padding="true">
-						<app-accordion>
-							<template slot="header">
-								<div class="p-4 b-b">
-									<span class="pt-1 d-inline-block">Verimlilik Grafikleri</span>
-								</div>
-							</template>
-							<div class="row">
-								<div class="col-md-8 b-r">
-									<div class="mt-4 mb-5">
-										<h6 class="ml-4 mb-3">Ulaşılanlar</h6>
-										<vue-funnel-graph
-											v-if="counts.total > 0"
-											:width="600"
-											:height="95"
-											:labels="labels"
-											:values="values"
-											:colors="colors"
-											:sub-labels="subLabels"
-											:display-percentage="true"
-										></vue-funnel-graph>
-										<p v-else class="ml-4 text-muted small">
-											Henüz görev bulunmuyor.
-										</p>
-									</div>
-								</div>
-								<div class="col-md-4 pt-3">
-									<h6 class="mb-3 mt-2">Ulaşılamayanlar</h6>
-									<VueApexCharts
-										v-if="chart.series.length > 0"
-										type="donut"
-										:options="chart.chartOptions"
-										:series="chart.series"
-									></VueApexCharts>
-								</div>
-							</div>
-						</app-accordion>
-					</app-card>
-
 					<app-card>
 						<template slot="header">
 							<span class="pt-1 d-inline-block">Dosyalar</span>
@@ -283,15 +244,6 @@
 							</div>
 						</template>
 					</app-card>
-					<!--<app-card :remove-body-padding="true" title="Verimlilik Grafiği">
-            <div class="mt-4 mb-5">
-              <vue-funnel-graph :width="1050" :height="250" :labels="labels"
-                  :values="values" :colors="colors" :sub-labels="subLabels" :direction="direction"
-                  :gradient-direction="gradientDirection"
-                  :animated="true" :display-percentage="true"
-              ></vue-funnel-graph>
-            </div>
-          </app-card>-->
 				</div>
 			</div>
 		</app-module-body>
@@ -432,74 +384,13 @@
 </template>
 <script>
 import API from "../../../utils/API";
-import { VueFunnelGraph } from "vue-funnel-graph-js";
 import { mapGetters } from "vuex";
-import VueApexCharts from "vue-apexcharts";
 import * as XLSX from "xlsx";
 import Axios from "axios";
 
 export default {
-	components: {
-		VueFunnelGraph,
-		VueApexCharts,
-	},
 	data() {
 		return {
-			chart: {
-				series: [],
-				chartOptions: {
-					labels: ["Meşgul", "Ulaşılamadı", "Diğer"],
-					colors: ["#f15490", "#c52563", "#860236"],
-					dataLabels: {
-						enabled: false,
-					},
-					legend: {
-						show: false,
-					},
-					chart: {
-						type: "donut",
-						width: "100%",
-					},
-					plotOptions: {
-						stroke: {
-							colors: undefined,
-						},
-						pie: {
-							lineCap: "round",
-							customScale: 1,
-							donut: {
-								size: "88%",
-								labels: {
-									show: true,
-									name: {
-										show: false,
-									},
-									value: {
-										show: true,
-									},
-									total: {
-										show: true,
-										label: "Toplam",
-									},
-								},
-							},
-						},
-					},
-					responsive: [
-						{
-							breakpoint: 480,
-							options: {
-								chart: {
-									width: 200,
-								},
-								legend: {
-									position: "bottom",
-								},
-							},
-						},
-					],
-				},
-			},
 			errors: null,
 			fileUpload: false,
 			filesPage: 1,
@@ -538,25 +429,10 @@ export default {
 				limit: 100,
 			},
 			form: {
-				status_breakdown: [],
 				files: [],
 				allowed_weekdays: [],
 			},
-			counts: {
-				success: 0,
-				wait: 0,
-				failed: 0,
-				total: 0,
-			},
 			files: [],
-			labels: ["Tümü", "Arananlar", "Ulaşılanlar"],
-			subLabels: ["Liste"],
-			values: [[0], [0], [0]],
-			colors: [["#62e8f3", "#4ae24d"]],
-			direction: "horizontal",
-			gradientDirection: "horizontal",
-			height: 250,
-			width: 922,
 		};
 	},
 	computed: {
@@ -580,33 +456,10 @@ export default {
 		API.get("operation/calling-lists/" + to.params.id, {}, (response) => {
 			next((wm) => {
 				wm.form = response.data.data;
-				wm.setCounts();
 			});
 		});
 	},
 	methods: {
-		setCounts() {
-			this.counts.success = 0;
-			this.counts.wait = 0;
-			this.counts.failed = 0;
-			this.counts.total = 0;
-			(this.form.status_breakdown || []).forEach((item) => {
-				const total = Number(item.total) || 0;
-				if (item.status === "wait") {
-					this.counts.wait += total;
-				} else if (item.status === "failed") {
-					this.counts.failed += total;
-				} else {
-					this.counts.success += total;
-				}
-				this.counts.total += total;
-			});
-			this.values = [
-				[this.counts.total],
-				[this.counts.success + this.counts.failed],
-				[this.counts.success],
-			];
-		},
 		reloadFiles() {
 			this.$api.get(
 				"operation/calling-lists/" + this.form.id,
@@ -614,7 +467,6 @@ export default {
 				(response) => {
 					this.form = response.data.data;
 					this.filesPage = 1;
-					this.setCounts();
 				}
 			);
 		},

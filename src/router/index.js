@@ -253,6 +253,11 @@ const routes = [
                         component: () => import('../views/reports/CallAnalysis'),
                         meta: modules.result_code_report,
                     },
+                    {
+                        path: 'call-list-analysis',
+                        component: () => import('../views/reports/CallListAnalysis'),
+                        meta: modules.call_list_analysis_report,
+                    },
                 ],
             },
             {

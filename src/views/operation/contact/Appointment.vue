@@ -132,6 +132,13 @@ export default {
 			required: false,
 			default: null,
 		},
+		// Click-to-call zincirinde socket → SipClient → Phone'dan gelir.
+		// Yeni randevu PATCH body'sine eklenir; backend task'ın source bilgilerini
+		// (source_type/source_id/source_part_id) yeni scheduled task'a devralır.
+		taskId: {
+			required: false,
+			default: null,
+		},
 	},
 	data() {
 		return {
@@ -175,6 +182,7 @@ export default {
 				{
 					assigned_user_id: this.form.assigned_user_id,
 					date: moment(this.form.date).format(),
+					task_id: this.taskId,
 				},
 				(response) => {
 					this.$message.success("Randevu oluşturuldu");

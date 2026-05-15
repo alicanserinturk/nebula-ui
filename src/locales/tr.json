@@ -98,6 +98,10 @@
         "title": "Sonuç Kodu Analiz",
         "description": "Sonuç kodu dağılım raporunu görüntüler."
       },
+      "call_list_analysis_report": {
+        "title": "Arama Listesi Analizi",
+        "description": "Arama listelerinin ve dosyalarının verimlilik/sonuç kodu analizi."
+      },
       "outbound_call": {
         "title": "Dış Arama",
         "description": ""

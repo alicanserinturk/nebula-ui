@@ -34,7 +34,7 @@ export default {
     if (!this.multiple) {
       this.itemID = null;
     }
-    this.$api.get('operation/calling-lists', {}, (result) => {
+    this.$api.get('operation/calling-lists', {short: 1, per_page: 100}, (result) => {
       this.options = result.data.data;
       this.dataLoading = false;
       this.placeholder = 'Arama Listesi Seçin';

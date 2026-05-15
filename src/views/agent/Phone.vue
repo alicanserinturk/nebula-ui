@@ -56,6 +56,7 @@
 						<History
 							:expand="atScrollBottom"
 							:active-call-id="callId"
+							:active-task-id="taskId"
 							:contact-id="contact.id"
 							:crm-number="number"
 							:crm-queue="queue"
@@ -86,6 +87,7 @@
 							<Appointment
 								:contact-id="contact.id"
 								:initial="appointments"
+								:task-id="taskId"
 							></Appointment>
 						</div>
 						<div v-else>
@@ -251,6 +253,13 @@ export default {
 			default: null,
 		},
 		queue: {
+			required: false,
+			default: null,
+		},
+		// Click-to-call zincirinde Asterisk → voip-server → socket'ten taşınır.
+		// CRM not / randevu request'lerinde backend'e geri verilir — task source'u
+		// bu sayede note'a kopyalanır ve yeni randevuya devralınır.
+		taskId: {
 			required: false,
 			default: null,
 		},

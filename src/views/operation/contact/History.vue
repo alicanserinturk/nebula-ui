@@ -143,6 +143,7 @@
 									v-if="item.call_id && item.current"
 									:id="item.call_id"
 									:contact-id="contactId"
+									:task-id="activeTaskId"
 									:number="crmNumber"
 									:queue="crmQueue"
 									:forms="crmForms"
@@ -179,6 +180,12 @@ export default {
 			required: true,
 		},
 		activeCallId: {
+			required: false,
+			default: null,
+		},
+		// Click-to-call zincirinde socket'ten gelen task_id. Crm child'a iletilir;
+		// not POST'u request body'sine eklenir, backend source'u not'a kopyalar.
+		activeTaskId: {
 			required: false,
 			default: null,
 		},
