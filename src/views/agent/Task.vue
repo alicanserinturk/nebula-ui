@@ -133,11 +133,11 @@ export default {
 				status: {
 					name: "Durum",
 					type: "primary",
-					value: "scheduled",
+					value: "mine",
 					options: [
-						{ name: "Planlanmış", value: "scheduled" },
-						{ name: "Bekleyen", value: "pending" },
 						{ name: "Üstlendiklerim", value: "mine" },
+						{ name: "Randevu", value: "scheduled" },
+						{ name: "Bekleyen", value: "pending" },
 					],
 				},
 				call_list_id: {
