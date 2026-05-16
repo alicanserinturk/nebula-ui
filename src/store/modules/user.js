@@ -77,8 +77,6 @@ export default {
                     }
                     localStorage.setItem('lastUsers', JSON.stringify(lastUsers));
                 }
-                //Set Remember User
-                user.settings = JSON.parse(user.settings);
                 //Set User
                 commit('setUser', user)
                 commit('setLoading', false);
@@ -118,7 +116,7 @@ export default {
                 name: data.name,
                 surname: data.surname,
                 email: data.email,
-                settings: JSON.stringify(data.settings),
+                settings: data.settings,
             };
             localStorage.setItem("user", JSON.stringify(getters.currentUser));
             commit('setUser', getters.currentUser);
