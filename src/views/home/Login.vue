@@ -87,12 +87,12 @@
                 </div>
               </div>
               <div class="mb-3 mt-2">
-                <el-input autocomplete="login-username" name="login-username" id="login-usernamee" v-model="activeUser.email" style="display: none"></el-input>
+                <el-input autocomplete="login-username" name="login-username" id="login-usernamee" v-model="form.email" style="display: none"></el-input>
                 <el-input autocomplete="login-password" name="login-password" id="login-passwordd" v-model="form.password" placeholder="Şifrenizi Girin" type="password" show-password></el-input>
               </div>
             </div>
             <template v-else>
-              <div @click="newUser = true" v-if="lastUsers.length > 0" class="last-user border pointer">
+              <div @click="showSavedUsers" v-if="lastUsers.length > 0" class="last-user border pointer">
                 <div class="row row-sm">
                   <div class="col-md-auto">
                           <span class="w-40 avatar circle bg-secondary--lt"><i
@@ -187,7 +187,7 @@ export default {
       this.warning = decodeURIComponent(escape(window.atob(this.$route.query.warning)));
     }
     if (this.lastUsers && this.lastUsers.length > 0) {
-      this.activeUser = this.lastUsers[0];
+      this.activeUser = { ...this.lastUsers[0] };
       this.form.email = this.activeUser.email;
     }
   },
@@ -266,9 +266,13 @@ export default {
       }
     },
     setActiveUser(user) {
-      this.activeUser = user;
+      this.activeUser = { ...user };
       this.form.email = user.email;
       this.form.password = '';
+    },
+    showSavedUsers() {
+      this.newUser = true;
+      this.form.email = this.activeUser.email;
     },
     removeUser(id) {
       let cacheIndex = false;
