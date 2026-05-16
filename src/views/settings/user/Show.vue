@@ -104,20 +104,26 @@
 					<el-dialog
 						:append-to-body="true"
 						custom-class="app-modal"
-						title="Şifre Değiştirme"
+						title="Şifre Sıfırlama"
 						:visible.sync="passwordResetModalVisible"
+						@closed="onPasswordModalClose"
 					>
-						<app-warning></app-warning>
-						<div class="row">
-							<div class="col-md-6">
-								<app-form-row label="Yeni Şifre">
-									<app-form-password-input
-										v-model="form.password"
-									></app-form-password-input>
+						<el-alert
+							type="info"
+							:closable="false"
+							title="Kullanıcının ilk girişinde şifresini değiştirmesi istenecektir."
+							show-icon
+							class="mb-3"
+						></el-alert>
+
+						<div style="display: flex; align-items: flex-start; gap: 12px;">
+							<div class="flex-fill">
+								<app-form-row label="Yeni Şifre" class="mb-0">
+									<app-form-password-input v-model="form.password"></app-form-password-input>
 								</app-form-row>
 							</div>
-							<div class="col-md-6">
-								<app-form-row label="Yeni Şifreyi Onaylayın">
+							<div class="flex-fill">
+								<app-form-row label="Şifreyi Onaylayın" class="mb-0">
 									<el-input
 										prefix-icon="el-icon-lock"
 										v-model="form.password_repeat"
@@ -127,22 +133,40 @@
 									></el-input>
 								</app-form-row>
 							</div>
+							<div style="padding-top: 28px; flex-shrink: 0;">
+								<el-button type="primary" size="medium" icon="el-icon-magic-stick" @click="generatePassword">
+									Şifre Oluştur
+								</el-button>
+							</div>
 						</div>
+
+						<div class="mt-3">
+							<el-checkbox v-model="showUserInfo">Kullanıcı bilgilerini göster</el-checkbox>
+							<div v-if="showUserInfo" class="d-flex align-items-start justify-content-between bg-light p-2 mt-2" style="border-radius: 6px;">
+								<div style="font-size: 13px; line-height: 1.8;">
+									<div><strong>Kullanıcı Adı:</strong> {{ form.email }}</div>
+									<div><strong>Şifre:</strong> {{ form.password || '—' }}</div>
+								</div>
+								<el-button
+									type="text"
+									size="mini"
+									icon="el-icon-document-copy"
+									title="Panoya kopyala"
+									@click="copyCredentials"
+								></el-button>
+							</div>
+						</div>
+
 						<div slot="footer" class="dialog-footer">
-							<el-button
-								@click="passwordResetModalVisible = false"
-								size="small"
-								type="text"
-							>
+							<el-button size="small" type="text" @click="passwordResetModalVisible = false">
 								Vazgeç
 							</el-button>
 							<el-button
 								type="primary"
 								size="small"
-								@click="changePassword"
+								@click="resetPassword"
 								:disabled="!form.password_repeat || !form.password"
-								>Değiştir</el-button
-							>
+							>Sıfırla</el-button>
 						</div>
 					</el-dialog>
 				</div>
@@ -254,6 +278,7 @@ export default {
 		return {
 			passwordResetModalVisible: false,
 			showPassword: false,
+			showUserInfo: true,
 			form: {
 				name: "",
 				surname: "",
@@ -276,6 +301,8 @@ export default {
 			next((wm) => {
 				wm.form = response.data.data;
 				wm.form.access_logs = response.data.data.access_logs.slice().reverse();
+				wm.$set(wm.form, "password", "");
+				wm.$set(wm.form, "password_repeat", "");
 				wm.getUserPermits();
 			});
 		});
@@ -323,18 +350,54 @@ export default {
 				}
 			);
 		},
-		changePassword() {
-			this.$api.put(
-				"settings/users/" + this.form.id,
+		resetPassword() {
+			this.$api.patch(
+				"settings/users/" + this.form.id + "/reset-password",
 				{
 					password: this.form.password,
 					password_repeat: this.form.password_repeat,
 				},
 				() => {
-					this.$message.success("Şifre değiştirildi.");
+					this.$message.success("Şifre sıfırlandı. Kullanıcı bir sonraki girişinde yeni şifre belirlemek zorunda kalacak.");
 					this.passwordResetModalVisible = false;
 				}
 			);
+		},
+		generatePassword() {
+			const lower = "abcdefghijklmnopqrstuvwxyz";
+			const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+			const digits = "0123456789";
+			const all = lower + upper + digits;
+
+			const chars = [
+				lower[Math.floor(Math.random() * lower.length)],
+				upper[Math.floor(Math.random() * upper.length)],
+				digits[Math.floor(Math.random() * digits.length)],
+			];
+
+			for (let i = 0; i < 9; i++) {
+				chars.push(all[Math.floor(Math.random() * all.length)]);
+			}
+
+			for (let i = chars.length - 1; i > 0; i--) {
+				const j = Math.floor(Math.random() * (i + 1));
+				[chars[i], chars[j]] = [chars[j], chars[i]];
+			}
+
+			const password = chars.join("");
+			this.$set(this.form, "password", password);
+			this.$set(this.form, "password_repeat", password);
+		},
+		copyCredentials() {
+			const text = `Kullanıcı Adı: ${this.form.email}\nŞifre: ${this.form.password}`;
+			navigator.clipboard.writeText(text).then(() => {
+				this.$message.success("Panoya kopyalandı.");
+			});
+		},
+		onPasswordModalClose() {
+			this.$set(this.form, "password", "");
+			this.$set(this.form, "password_repeat", "");
+			this.showUserInfo = true;
 		},
 	},
 };

@@ -31,7 +31,7 @@
                     <i class="el-icon-lock mr-1"></i> Şifrenizi Değiştirin
                   </el-button>
                 </div>
-                <el-dialog :append-to-body="true" title="Şifre Sıfırlama" :visible.sync="passwordResetModalVisible">
+                <el-dialog :append-to-body="true" title="Şifre Değiştir" :visible.sync="passwordResetModalVisible">
                   <app-warning></app-warning>
                   <app-form-row label="Şifreniz">
                     <el-input prefix-icon="el-icon-lock" size="medium" v-model="passwordChangeForm.password"
@@ -45,7 +45,7 @@
                     </div>
                     <div class="col-md-6">
                       <app-form-row label="Şifrenizi Onaylayın">
-                        <el-input prefix-icon="el-icon-lock" v-model="passwordChangeForm.new_password_again"
+                        <el-input prefix-icon="el-icon-lock" v-model="passwordChangeForm.new_password_repeat"
                                   size="medium" type="password" show-password></el-input>
                       </app-form-row>
                     </div>
@@ -115,7 +115,7 @@ export default {
       passwordResetModalVisible: false,
       passwordChangeForm: {
         password: '',
-        new_password_again: '',
+        new_password_repeat: '',
         new_password: '',
       }
     }
@@ -137,7 +137,7 @@ export default {
     changePassword() {
       this.$api.patch('profile/change-password', this.passwordChangeForm, (response) => {
         this.passwordChangeForm.password = '';
-        this.passwordChangeForm.new_password_again = '';
+        this.passwordChangeForm.new_password_repeat = '';
         this.passwordChangeForm.new_password = '';
         this.passwordResetModalVisible = false;
         this.$message.success('Şifreniz güncellendi.');

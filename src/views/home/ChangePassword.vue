@@ -54,7 +54,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['currentUser', 'loading']),
+    ...mapGetters(['currentUser']),
   },
   created() {
 
@@ -62,8 +62,13 @@ export default {
   methods: {
     ...mapActions(['updateCurrentUser']),
     logout() {
-      localStorage.removeItem('user');
-      this.$router.push('/login');
+      this.$api.get('logout', {}, () => {
+        localStorage.removeItem('user');
+        this.$router.push('/login');
+      }, () => {
+        localStorage.removeItem('user');
+        this.$router.push('/login');
+      });
     },
     changePassword() {
       this.loading = true;
